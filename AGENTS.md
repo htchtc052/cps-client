@@ -12,9 +12,12 @@
 - Use `useSanctumClient()` as the sole authenticated HTTP transport. Do not create a parallel `$fetch` instance.
 - Give ordinary endpoints feature-specific request functions. Use a shared operation helper only for mutation loading, Laravel validation errors, and unexpected-error feedback; use Nuxt `useAsyncData` for SSR queries.
 - Keep client state local to its feature unless it must survive navigation or coordinate multiple pages.
+- Do not add production state, delays, hydration flags, or branches solely to satisfy a test. Fix test synchronization or the underlying user-facing behavior.
+- Give SSR forms safe native HTML semantics; do not depend on hydration guards to prevent unsafe submission.
 - Add Vitest only for meaningful frontend logic such as state transitions, ordering, transformations, or error mapping. Do not test framework behavior, UI libraries, declarative schemas, or trivial request functions.
 - Do not change the backend or add deployment infrastructure unless the active task explicitly requires it.
 - Keep code, tests, error identifiers, and commit messages in English.
+- Do not add code comments. The only exceptions are a specific comment explicitly approved by the user or architect, or a concrete comment beginning with `TODO:` for intentionally unfinished work.
 
 ## Verification
 
