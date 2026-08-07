@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui', 'nuxt-auth-sanctum'],
   css: ['~/assets/css/main.css'],
+  ui: {
+    colorMode: false,
+  },
   compatibilityDate: '2026-08-08',
   devtools: { enabled: true },
   sanctum: {
