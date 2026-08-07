@@ -12,13 +12,19 @@
 - Use `useSanctumClient()` as the sole authenticated HTTP transport. Do not create a parallel `$fetch` instance.
 - Give ordinary endpoints feature-specific request functions. Use a shared operation helper only for mutation loading, Laravel validation errors, and unexpected-error feedback; use Nuxt `useAsyncData` for SSR queries.
 - Keep client state local to its feature unless it must survive navigation or coordinate multiple pages.
-- Keep Playwright scenarios here and test user-visible behavior at stable boundaries.
+- Add Vitest only for meaningful frontend logic such as state transitions, ordering, transformations, or error mapping. Do not test framework behavior, UI libraries, declarative schemas, or trivial request functions.
 - Do not change the backend or add deployment infrastructure unless the active task explicitly requires it.
 - Keep code, tests, error identifiers, and commit messages in English.
+
+## Verification
+
+- The frontend agent owns lint, typecheck, and unit tests relevant to the changed logic. A slice with no meaningful unit-testable logic may have no tests.
+- The architect owns cross-stack browser smokes and the production build when accepting the paired backend/frontend result.
+- Do not add or run Playwright, start a production build, or manufacture tests as a routine frontend handoff ritual.
 
 ## Local runtime
 
 - The architect keeps the frontend running at `http://localhost:3001` and backend at `http://localhost:8001`.
 - Use the running services and existing seeded account. Do not start or stop either server, migrate or reseed the backend, or clean runtime state at handoff.
-- Playwright reuses the running frontend. If either service is unavailable, report it to the architect instead of creating a temporary replacement.
+- If either service is unavailable, report it to the architect instead of creating a temporary replacement.
 - Use the existing `node_modules` during normal work. Do not run `npm ci` as routine setup; run an install command only when the task itself changes dependencies or dependencies are missing.
