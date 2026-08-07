@@ -19,14 +19,23 @@
 - Keep code, tests, error identifiers, and commit messages in English.
 - Do not add code comments. The only exceptions are a specific comment explicitly approved by the user or architect, or a concrete comment beginning with `TODO:` for intentionally unfinished work.
 
-## Layout specialist
+## Layout agent
 
-- A layout specialist may make a separate visual commit after a functional slice. Preserve its contracts, state flow, API calls, and route behavior unless the task explicitly includes them.
+- A layout agent may make a separate visual commit after a functional slice. Preserve its contracts, state flow, API calls, and route behavior unless the task explicitly includes them.
 - Treat this section as the small, evolving set of agreed layout principles. Discuss material additions with the user and architect instead of inventing a design system inside a feature.
-- Use Nuxt UI primitives and established tokens. Use utility classes for explicit structure, spacing, and responsive behavior; avoid arbitrary visual constants and premature shared components.
-- Review the running route before and after changes at wide and narrow viewports. Check hierarchy, content width, spacing rhythm, typography, focus, loading, validation, and error states that exist in the slice.
+- Design desktop-first. This is a curation surface for a large screen, not a mobile capture app; the desktop route must feel fluid and is where layout decisions are made.
+- Keep narrow viewports usable rather than optimized. Every route must open and stay navigable on a phone and may present reduced functionality where that is the better trade. Supporting very small screens is not a requirement; never trade desktop quality for them.
+- Compose pages closer to a photo site than to an admin panel: content-led, generous image area, restrained chrome.
+- Keep the design plain and structural. Prefer an obvious layout over decoration and avoid visual effects that need maintenance.
+- Reach for a Nuxt UI component and its props before writing utility classes. Use Tailwind utilities for everything Nuxt UI does not cover, and never use an inline `style` attribute.
+- Keep utility class lists short and quiet. A long class list is a signal to use a Nuxt UI component or its props instead; drop classes that restate a default.
+- Use Nuxt UI primitives and established tokens; avoid arbitrary visual constants and premature shared components.
+- Write structural, semantic markup: correct landmarks, headings, labels, and controls. Do not pursue SEO-grade markup or metadata on the account surface.
+- Use stacking layers and absolute positioning sparingly. Prefer normal flow, flex, and grid, and let Nuxt UI own overlay stacking.
+- Fix the color scheme in configuration: define the palette once in `app.config.ts` and lock the application to the light color mode. Do not branch styling on the system scheme or add a theme switcher.
+- Review the running route before and after changes, primarily at a wide desktop viewport, then at a narrow one to confirm it opens without horizontal scroll. Check hierarchy, content width, spacing rhythm, typography, focus, loading, validation, and error states that exist in the slice.
 - Use browser inspection and screenshots as temporary review tools. Keep screenshots, traces, reports, and browser test files outside the repository.
-- Visual acceptance is a joint pass with the user led by the architect or layout specialist. They provide a clickable live URL, credentials when needed, and a short path; the user inspects the application in their own browser. Add durable layout decisions to this section only after that review.
+- Visual acceptance is a joint pass with the user led by the architect or layout agent. They provide a clickable live URL, credentials when needed, and a short path; the user inspects the application in their own browser. Add durable layout decisions to this section only after that review.
 
 ## Handoff
 
