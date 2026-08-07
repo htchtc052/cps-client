@@ -21,6 +21,8 @@
 
 ## Layout agent
 
+- Own composition and appearance: page structure, spacing, typography, responsive behavior, and the extraction of presentational components.
+- Leave slice boundaries, data flow, requests, and state ownership to the frontend agent. Raise such a change instead of deciding it alone.
 - A layout agent may make a separate visual commit after a functional slice. Preserve its contracts, state flow, API calls, and route behavior unless the task explicitly includes them.
 - Treat this section as the small, evolving set of agreed layout principles. Discuss material additions with the user and architect instead of inventing a design system inside a feature.
 - Design desktop-first. This is a curation surface for a large screen, not a mobile capture app; the desktop route must feel fluid and is where layout decisions are made.
