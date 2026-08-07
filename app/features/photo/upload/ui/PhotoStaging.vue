@@ -7,10 +7,6 @@
     icon="i-lucide-image-up"
     label="Drop photos here"
     description="Add photos in as many goes as you like, then upload them together."
-    :ui="{
-      files: 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 max-h-96 overflow-y-auto p-1.5',
-      file: 'bg-elevated [&_img]:object-contain',
-    }"
   >
     <template #actions="{ open }">
       <UButton
@@ -26,25 +22,22 @@
     <template #files-bottom="{ files, removeFile }">
       <div
         v-if="files?.length"
-        class="mt-4 flex items-center justify-between gap-4"
+        class="flex items-center gap-3"
         @click.stop
       >
-        <div class="flex items-center gap-3">
-          <span class="text-sm text-muted">{{ files.length }} staged</span>
-
-          <UButton
-            label="Clear all"
-            color="neutral"
-            variant="outline"
-            @click="removeFile()"
-          />
-        </div>
-
         <UButton
           label="Upload"
           icon="i-lucide-upload"
-          size="xl"
         />
+
+        <UButton
+          label="Clear all"
+          color="neutral"
+          variant="outline"
+          @click="removeFile()"
+        />
+
+        <span class="text-sm text-muted">{{ files.length }} staged</span>
       </div>
     </template>
   </UFileUpload>
