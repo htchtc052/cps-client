@@ -43,7 +43,6 @@ async function onSubmit(e: FormSubmitEvent<SignInDto>) {
         spellcheck="false"
         placeholder="you@example.com"
         class="w-full"
-        data-testid="email"
       />
     </UFormField>
 
@@ -55,7 +54,6 @@ async function onSubmit(e: FormSubmitEvent<SignInDto>) {
         autocomplete="current-password"
         placeholder="Enter password"
         class="w-full"
-        data-testid="password"
       />
     </UFormField>
 
@@ -63,7 +61,6 @@ async function onSubmit(e: FormSubmitEvent<SignInDto>) {
       type="submit"
       block
       :loading="isLoading"
-      data-testid="submit"
     >
       Sign in
     </UButton>

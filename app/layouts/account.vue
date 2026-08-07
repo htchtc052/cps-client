@@ -23,13 +23,12 @@ async function handleLogout() {
         <span class="font-semibold">CuratedPhotoSpace</span>
 
         <div class="flex items-center gap-3">
-          <span class="text-sm text-muted" data-testid="account-email">{{ user?.email }}</span>
+          <span class="text-sm text-muted">{{ user?.email }}</span>
 
           <UButton
             color="neutral"
             variant="subtle"
             :loading="isLoggingOut"
-            data-testid="logout"
             @click="handleLogout"
           >
             Sign out

@@ -13,7 +13,7 @@ const user = useSanctumUser<Account>()
       Owner space
     </h1>
 
-    <p class="text-muted" data-testid="account-name">
+    <p class="text-muted">
       {{ user?.name }}
     </p>
   </section>
