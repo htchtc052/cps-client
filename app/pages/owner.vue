@@ -12,8 +12,8 @@ const visibilityFilters = ['All photos', 'Public', 'Private']
     <UPageHeader title="Photos">
       <template #links>
         <UButton
+          to="/upload"
           icon="i-lucide-upload"
-          disabled
         >
           Upload
         </UButton>
