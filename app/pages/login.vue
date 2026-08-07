@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LoginForm } from '~/features/auth/login'
+import { SignInForm } from '~/features/auth/sign-in'
 
 definePageMeta({ layout: 'guest', middleware: ['sanctum:guest'] })
 useHead({ title: 'Sign in' })
@@ -11,6 +11,6 @@ useHead({ title: 'Sign in' })
       Sign in
     </h1>
 
-    <LoginForm />
+    <SignInForm />
   </div>
 </template>

@@ -11,7 +11,7 @@ cp .env.example .env
 npm run dev -- --port 3001
 ```
 
-`API_BASE_URL` points at the Laravel API (`http://localhost:8001`).
+`NUXT_PUBLIC_API_BASE` points at the Laravel API (`http://localhost:8001`).
 The session lives in cookies shared across both `localhost` ports, so the backend must
 run on that origin and list `localhost:3001` in its Sanctum stateful domains.
 

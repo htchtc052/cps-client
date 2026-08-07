@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useAccount } from '~/entities/account'
+import type { Account } from '~/entities/account'
 
 definePageMeta({ layout: 'account', middleware: ['sanctum:auth'] })
 useHead({ title: 'Owner space' })
 
-const account = useAccount()
+const user = useSanctumUser<Account>()
 </script>
 
 <template>
@@ -14,7 +14,7 @@ const account = useAccount()
     </h1>
 
     <p class="text-muted" data-testid="account-name">
-      {{ account?.name }}
+      {{ user?.name }}
     </p>
   </section>
 </template>
