@@ -4,7 +4,6 @@
     accept="image/*"
     layout="grid"
     position="outside"
-    :interactive="false"
     icon="i-lucide-image-up"
     label="Drop photos here"
     description="Add photos in as many goes as you like, then upload them together."
@@ -16,7 +15,7 @@
         icon="i-lucide-plus"
         color="neutral"
         variant="outline"
-        @click="open()"
+        @click.stop="open()"
       />
     </template>
 
@@ -25,6 +24,7 @@
       <div
         v-if="files?.length"
         class="mt-4 flex items-center justify-between gap-4"
+        @click.stop
       >
         <span class="text-sm text-muted">{{ files.length }} staged</span>
 
