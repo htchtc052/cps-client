@@ -17,7 +17,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <div class="bg-muted">
+  <div class="flex min-h-screen flex-col bg-muted">
     <UHeader
       title="CuratedPhotoSpace"
       to="/owner"
@@ -29,6 +29,7 @@ async function handleLogout() {
         <UButton
           color="neutral"
           variant="subtle"
+          icon="i-lucide-log-out"
           :loading="isLoggingOut"
           @click="handleLogout"
         >
@@ -37,10 +38,16 @@ async function handleLogout() {
       </template>
     </UHeader>
 
-    <UMain>
+    <main class="flex-1">
       <UContainer class="py-10">
         <slot />
       </UContainer>
-    </UMain>
+    </main>
+
+    <UFooter>
+      <template #left>
+        <span class="text-sm text-muted">CuratedPhotoSpace</span>
+      </template>
+    </UFooter>
   </div>
 </template>
