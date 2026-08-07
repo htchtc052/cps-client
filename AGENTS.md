@@ -21,8 +21,8 @@
 
 ## Handoff
 
-- Give the architect the commit and at most five semantic files in useful reading order; omit generated files, configuration noise, and exhaustive file lists.
-- State the behavior the commit unlocks and any known limitation. The architect owns the final code-reading list and manual application walkthrough for the user.
+- Give the architect the commit and at most five files worth reading by hand, ordered as applicable: page or layout, feature model, feature UI, validation contract, and meaningful test. Do not pad the list with generated files or configuration.
+- State the route and user actions now available, including any relevant SSR or hydration boundary and known limitation. The architect curates the final frontend reading list and gives the user the live manual walkthrough.
 
 ## Verification
 
