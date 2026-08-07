@@ -21,4 +21,4 @@
 - The architect keeps the frontend running at `http://localhost:3001` and backend at `http://localhost:8001`.
 - Use the running services and existing seeded account. Do not start or stop either server, migrate or reseed the backend, or clean runtime state at handoff.
 - Playwright reuses the running frontend. If either service is unavailable, report it to the architect instead of creating a temporary replacement.
-- Run dependency installation only when dependencies changed or `node_modules` is genuinely missing.
+- Use the existing `node_modules` during normal work. Do not run `npm ci` as routine setup; run an install command only when the task itself changes dependencies or dependencies are missing.
