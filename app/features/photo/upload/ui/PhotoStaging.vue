@@ -26,32 +26,28 @@
         class="mt-4 flex items-center justify-between gap-4"
         @click.stop
       >
-        <span class="text-sm text-muted">{{ files.length }} staged</span>
-
         <div class="flex items-center gap-3">
+          <span class="text-sm text-muted">{{ files.length }} staged</span>
+
           <UButton
             label="Add more"
-            icon="i-lucide-plus"
             color="neutral"
             variant="outline"
             @click="open()"
           />
 
           <UButton
+            label="Clear all"
             color="neutral"
-            variant="ghost"
+            variant="outline"
             @click="removeFile()"
-          >
-            Clear all
-          </UButton>
-
-          <UButton
-            icon="i-lucide-upload"
-            size="lg"
-          >
-            Upload
-          </UButton>
+          />
         </div>
+
+        <UButton
+          label="Upload"
+          icon="i-lucide-upload"
+        />
       </div>
     </template>
   </UFileUpload>
