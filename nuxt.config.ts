@@ -5,8 +5,6 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   sanctum: {
-    // The module reads its private runtime config during SSR and the public one in
-    // the browser, so the API origin is set once here and lands in both.
     baseUrl: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8001',
     mode: 'cookie',
     endpoints: {

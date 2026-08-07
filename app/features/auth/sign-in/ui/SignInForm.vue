@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '@nuxt/ui'
-import { useHydrated } from '~/shared/lib'
 import { signInSchema, type SignInDto } from '../contract/sign-in.contract'
 import { useSignIn } from '../model/useSignIn'
 
@@ -11,10 +10,6 @@ const state = reactive<SignInDto>({
 
 const form = ref<Form<typeof signInSchema>>()
 const { signIn, isLoading } = useSignIn()
-
-// Until Vue owns the submit event the browser submits the form natively and puts
-// the password in the URL.
-const hydrated = useHydrated()
 
 async function onSubmit(e: FormSubmitEvent<SignInDto>) {
   form.value?.clear()
@@ -32,6 +27,7 @@ async function onSubmit(e: FormSubmitEvent<SignInDto>) {
     :schema="signInSchema"
     :state="state"
     class="space-y-4"
+    method="post"
     autocomplete="on"
     novalidate
     @submit="onSubmit"
@@ -67,7 +63,6 @@ async function onSubmit(e: FormSubmitEvent<SignInDto>) {
       type="submit"
       block
       :loading="isLoading"
-      :disabled="!hydrated"
       data-testid="submit"
     >
       Sign in

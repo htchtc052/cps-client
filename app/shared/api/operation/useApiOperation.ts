@@ -2,10 +2,6 @@ import { ref } from '#imports'
 import { parseApiError } from '../error/apiError'
 import { ApiResultStatus, type ApiOperationResponse } from '../result/apiResponse'
 
-/**
- * Runs a mutation and reports its outcome as data, Laravel field errors, or a
- * failure the caller cannot act on, which is surfaced as a toast instead.
- */
 export function useApiOperation<TArgs extends unknown[], TResult>(
   handler: (...args: TArgs) => Promise<TResult>,
 ) {

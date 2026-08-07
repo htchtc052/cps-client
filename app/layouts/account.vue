@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import type { Account } from '~/entities/account'
-import { useHydrated } from '~/shared/lib'
 
 const { user, logout } = useSanctumAuth<Account>()
 
-const hydrated = useHydrated()
 const isLoggingOut = ref(false)
 
 async function handleLogout() {
@@ -27,12 +25,10 @@ async function handleLogout() {
         <div class="flex items-center gap-3">
           <span class="text-sm text-muted" data-testid="account-email">{{ user?.email }}</span>
 
-          <!-- Sign-out only works once Vue owns the server-rendered markup. -->
           <UButton
             color="neutral"
             variant="subtle"
             :loading="isLoggingOut"
-            :disabled="!hydrated"
             data-testid="logout"
             @click="handleLogout"
           >

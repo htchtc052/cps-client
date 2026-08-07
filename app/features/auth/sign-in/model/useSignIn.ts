@@ -10,7 +10,6 @@ export function useSignIn() {
     isLoading,
   } = useApiOperation(login)
 
-  /** Resolves with the field errors Laravel rejected the credentials with, if any. */
   async function signIn(data: SignInDto): Promise<FormError[] | undefined> {
     const result = await executeSignIn(data)
 
