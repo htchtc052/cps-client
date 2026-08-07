@@ -1,20 +1,35 @@
 <script setup lang="ts">
-import type { Account } from '~/entities/account'
-
 definePageMeta({ layout: 'account', middleware: ['sanctum:auth'] })
-useHead({ title: 'Owner space' })
+useHead({ title: 'Photos' })
 
-const user = useSanctumUser<Account>()
+// TODO: replace the placeholder tiles with the photo entity once uploads exist.
+const placeholderTiles = 8
 </script>
 
 <template>
-  <section class="space-y-2">
-    <h1 class="text-xl font-semibold">
-      Owner space
-    </h1>
+  <div>
+    <UPageHeader title="Photos">
+      <template #links>
+        <UButton
+          icon="i-lucide-upload"
+          disabled
+        >
+          Upload
+        </UButton>
+      </template>
+    </UPageHeader>
 
-    <p class="text-muted">
-      {{ user?.name }}
-    </p>
-  </section>
+    <UPageGrid class="mt-8 grid-cols-2 gap-4 xl:grid-cols-4">
+      <div
+        v-for="tile in placeholderTiles"
+        :key="tile"
+        class="flex aspect-[4/3] items-center justify-center rounded-lg bg-elevated ring ring-default"
+      >
+        <UIcon
+          name="i-lucide-image"
+          class="size-8 text-dimmed"
+        />
+      </div>
+    </UPageGrid>
+  </div>
 </template>

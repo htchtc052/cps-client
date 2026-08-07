@@ -10,13 +10,25 @@ const user = useSanctumUser<Account>()
   <UHeader
     to="/owner"
     :toggle="false"
+    :ui="{ right: 'gap-4' }"
   >
     <template #title>
       <AppLogo />
     </template>
 
     <template #right>
-      <span class="hidden truncate text-sm text-muted sm:block">{{ user?.email }}</span>
+      <UUser
+        :name="user?.name"
+        :description="user?.email"
+        :avatar="{ alt: user?.name }"
+        size="sm"
+        class="hidden sm:flex"
+      />
+
+      <USeparator
+        orientation="vertical"
+        class="hidden h-8 sm:block"
+      />
 
       <SignOutButton />
     </template>

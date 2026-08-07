@@ -3,7 +3,7 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-  <UFooter>
+  <UFooter class="border-t border-default">
     <template #left>
       <span class="text-sm text-muted">&copy; {{ year }} CuratedPhotoSpace. All rights reserved.</span>
     </template>
