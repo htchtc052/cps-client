@@ -19,6 +19,11 @@
 - Keep code, tests, error identifiers, and commit messages in English.
 - Do not add code comments. The only exceptions are a specific comment explicitly approved by the user or architect, or a concrete comment beginning with `TODO:` for intentionally unfinished work.
 
+## Handoff
+
+- Give the architect the commit and at most five semantic files in useful reading order; omit generated files, configuration noise, and exhaustive file lists.
+- State the behavior the commit unlocks and any known limitation. The architect owns the final code-reading list and manual application walkthrough for the user.
+
 ## Verification
 
 - The frontend agent owns lint, typecheck, and unit tests relevant to the changed logic. A slice with no meaningful unit-testable logic may have no tests.
