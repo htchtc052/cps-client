@@ -19,10 +19,19 @@
 - Keep code, tests, error identifiers, and commit messages in English.
 - Do not add code comments. The only exceptions are a specific comment explicitly approved by the user or architect, or a concrete comment beginning with `TODO:` for intentionally unfinished work.
 
+## Layout specialist
+
+- A layout specialist may make a separate visual commit after a functional slice. Preserve its contracts, state flow, API calls, and route behavior unless the task explicitly includes them.
+- Treat this section as the small, evolving set of agreed layout principles. Discuss material additions with the user and architect instead of inventing a design system inside a feature.
+- Use Nuxt UI primitives and established tokens. Use utility classes for explicit structure, spacing, and responsive behavior; avoid arbitrary visual constants and premature shared components.
+- Review the running route before and after changes at wide and narrow viewports. Check hierarchy, content width, spacing rhythm, typography, focus, loading, validation, and error states that exist in the slice.
+- Use browser inspection and screenshots as temporary review tools. Keep screenshots, traces, reports, and browser test files outside the repository.
+- Visual acceptance is a joint pass with the user led by the architect or layout specialist. They provide a clickable live URL, credentials when needed, and a short path; the user inspects the application in their own browser. Add durable layout decisions to this section only after that review.
+
 ## Handoff
 
 - Give the architect the commit and at most five files worth reading by hand, ordered as applicable: page or layout, feature model, feature UI, validation contract, and meaningful test. Do not pad the list with generated files or configuration.
-- State the route and user actions now available, including any relevant SSR or hydration boundary and known limitation. The architect curates the final frontend reading list and gives the user the live manual walkthrough.
+- State the route and user actions now available, including any relevant SSR or hydration boundary and known limitation. The architect curates the final frontend reading list and gives the user the live inspection link and manual path.
 
 ## Verification
 
