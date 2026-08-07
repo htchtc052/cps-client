@@ -30,6 +30,7 @@
 - Reach for a Nuxt UI component and its props before writing utility classes. Use Tailwind utilities for everything Nuxt UI does not cover, and never use an inline `style` attribute.
 - Keep utility class lists short and quiet. A long class list is a signal to use a Nuxt UI component or its props instead; drop classes that restate a default.
 - Use Nuxt UI primitives and established tokens; avoid arbitrary visual constants and premature shared components.
+- Keep slots to a minimum. Consuming Nuxt UI slots is fine, but drive your own components with props and do not build slotted wrappers of your own.
 - Write structural, semantic markup: correct landmarks, headings, labels, and controls. Do not pursue SEO-grade markup or metadata on the account surface.
 - Use stacking layers and absolute positioning sparingly. Prefer normal flow, flex, and grid, and let Nuxt UI own overlay stacking.
 - Fix the color scheme in configuration: define the palette once in `app.config.ts` and lock the application to the light color mode. Do not branch styling on the system scheme or add a theme switcher.
