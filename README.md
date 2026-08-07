@@ -15,13 +15,13 @@ npm run dev -- --port 3001
 The session lives in cookies shared across both `localhost` ports, so the backend must
 run on that origin and list `localhost:3001` in its Sanctum stateful domains.
 
-Run the production check with `npm run build` and the types with `npm run typecheck`.
-
-## End-to-end tests
+## Checks
 
 ```sh
-npm run test:e2e
+npm run lint
+npm run typecheck
+npm run test
 ```
 
-The smoke drives login, reload, and logout against a running frontend on port 3001 and a
-seeded backend on port 8001; it starts neither.
+Unit tests cover frontend logic such as error mapping; browser smokes and the production
+build are run by the architect when the paired backend and frontend slices are accepted.
