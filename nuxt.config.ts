@@ -1,5 +1,23 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  modules: ['@nuxt/ui', 'nuxt-auth-sanctum'],
+  css: ['~/assets/css/main.css'],
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true }
+  devtools: { enabled: true },
+  sanctum: {
+    // The module reads its private runtime config during SSR and the public one in
+    // the browser, so the API origin is set once here and lands in both.
+    baseUrl: process.env.API_BASE_URL,
+    endpoints: {
+      login: '/api/login',
+      logout: '/api/logout',
+      user: '/api/account',
+    },
+    redirect: {
+      onLogin: '/owner',
+      onLogout: '/login',
+      onAuthOnly: '/login',
+      onGuestOnly: '/owner',
+    },
+  },
 })
