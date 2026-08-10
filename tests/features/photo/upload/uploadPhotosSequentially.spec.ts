@@ -1,20 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import type { Photo } from '../../../../app/entities/photo/model/photo'
-import { uploadPhotosSequentially } from '../../../../app/features/photo/upload/model/usePhotoUpload'
+import { uploadPhotosSequentially } from '../../../../app/features/photo/upload/model/uploadPhotosSequentially'
 
 type Deferred = {
   resolve: () => void
   reject: () => void
-  promise: Promise<Photo>
+  promise: Promise<unknown>
 }
 
 function deferred(): Deferred {
   let resolve: () => void = () => {}
   let reject: () => void = () => {}
 
-  const promise = new Promise<Photo>((resolvePhoto, rejectPhoto) => {
-    resolve = () => resolvePhoto({} as Photo)
-    reject = () => rejectPhoto(new Error('upload failed'))
+  const promise = new Promise<unknown>((resolveUpload, rejectUpload) => {
+    resolve = () => resolveUpload(undefined)
+    reject = () => rejectUpload(new Error('upload failed'))
   })
 
   return { resolve, reject, promise }

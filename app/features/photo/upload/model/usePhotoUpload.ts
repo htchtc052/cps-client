@@ -1,39 +1,6 @@
 import { ref } from 'vue'
-import type { Photo } from '~/entities/photo'
 import { usePhotoUploadRequest } from '../api/usePhotoUploadRequest'
-
-export type PhotoUploadOutcome = {
-  attempted: number
-  created: number
-  failed: number
-}
-
-export async function uploadPhotosSequentially(
-  files: readonly File[],
-  upload: (file: File) => Promise<Photo>,
-  onProgress: (completed: number) => void,
-): Promise<PhotoUploadOutcome> {
-  let created = 0
-  let failed = 0
-
-  for (const file of files) {
-    try {
-      await upload(file)
-      created += 1
-    }
-    catch {
-      failed += 1
-    }
-
-    onProgress(created + failed)
-  }
-
-  return {
-    attempted: files.length,
-    created,
-    failed,
-  }
-}
+import { uploadPhotosSequentially, type PhotoUploadOutcome } from './uploadPhotosSequentially'
 
 export function usePhotoUpload() {
   const toast = useToast()
