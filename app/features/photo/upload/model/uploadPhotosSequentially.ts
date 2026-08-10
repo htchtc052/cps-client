@@ -1,7 +1,12 @@
+export type PhotoUploadFailure = {
+  file: File
+  error: unknown
+}
+
 export type PhotoUploadOutcome = {
   attempted: number
   created: number
-  failed: number
+  failures: PhotoUploadFailure[]
 }
 
 export async function uploadPhotosSequentially(
@@ -10,23 +15,23 @@ export async function uploadPhotosSequentially(
   onProgress: (completed: number) => void,
 ): Promise<PhotoUploadOutcome> {
   let created = 0
-  let failed = 0
+  const failures: PhotoUploadFailure[] = []
 
   for (const file of files) {
     try {
       await upload(file)
       created += 1
     }
-    catch {
-      failed += 1
+    catch (error: unknown) {
+      failures.push({ file, error })
     }
 
-    onProgress(created + failed)
+    onProgress(created + failures.length)
   }
 
   return {
     attempted: files.length,
     created,
-    failed,
+    failures,
   }
 }

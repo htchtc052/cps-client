@@ -1,25 +1,53 @@
 <script setup lang="ts">
-import { usePhotoUpload } from '../model/usePhotoUpload'
+import type { FormSubmitEvent } from '@nuxt/ui'
+import { photoStagingSchema, type PhotoStagingDto } from '../contract/photo-staging.contract'
+import { usePhotoUpload, type PhotoUploadFailureView } from '../model/usePhotoUpload'
 
-const photos = ref<File[]>([])
+const state = reactive<PhotoStagingDto>({
+  photos: [],
+})
+
+const failures = ref<PhotoUploadFailureView[]>([])
 
 const { uploadPhotos, isUploading, completed, total } = usePhotoUpload()
 
 const uploadLabel = computed(() =>
   isUploading.value ? `Uploading ${completed.value} of ${total.value}` : 'Upload',
 )
+
+function onStagingChange(photos: File[] | null | undefined) {
+  if (isUploading.value) return
+
+  failures.value = []
+  state.photos = photos ?? []
+}
+
+async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
+  const result = await uploadPhotos(e.data.photos)
+
+  if (result.failures.length === 0) return
+
+  failures.value = result.failures
+  state.photos = result.failures.map(failure => failure.file)
+}
 </script>
 
 <template>
-  <div class="space-y-4">
+  <UForm
+    :schema="photoStagingSchema"
+    :state="state"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <UFormField
+      name="photos"
       label="Photos"
       description="JPEG, PNG or WebP. 15MB max."
     >
       <UFileUpload
-        v-model="photos"
+        :model-value="state.photos"
         multiple
-        accept="image/jpeg,image/png,image/webp"
+        accept=".jpg,.jpeg,.png,.webp"
         layout="grid"
         icon="i-lucide-image"
         label="Drop your photos here"
@@ -28,6 +56,7 @@ const uploadLabel = computed(() =>
         :interactive="false"
         :disabled="isUploading"
         :file-delete="!isUploading"
+        @update:model-value="onStagingChange"
       >
         <template #actions="{ open }">
           <UButton
@@ -75,13 +104,30 @@ const uploadLabel = computed(() =>
       </UFileUpload>
     </UFormField>
 
+    <UAlert
+      v-if="failures.length"
+      color="warning"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+    >
+      <template #description>
+        <ul>
+          <li
+            v-for="(failure, index) in failures"
+            :key="index"
+          >
+            {{ failure.file.name }} — {{ failure.message }}
+          </li>
+        </ul>
+      </template>
+    </UAlert>
+
     <UButton
-      type="button"
+      type="submit"
       icon="i-lucide-upload"
       :label="uploadLabel"
       :loading="isUploading"
-      :disabled="photos.length === 0 || isUploading"
-      @click="uploadPhotos(photos)"
+      :disabled="state.photos.length === 0 || isUploading"
     />
-  </div>
+  </UForm>
 </template>
