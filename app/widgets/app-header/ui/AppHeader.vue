@@ -10,7 +10,7 @@ const user = useSanctumUser<Account>()
   <UHeader
     to="/owner"
     :toggle="false"
-    :ui="{ right: 'gap-4' }"
+    :ui="{ root: 'bg-default backdrop-blur-none', right: 'gap-4' }"
   >
     <template #title>
       <AppLogo />
