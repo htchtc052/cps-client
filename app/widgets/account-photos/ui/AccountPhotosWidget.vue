@@ -7,13 +7,13 @@ const visibilityFilters = ['All photos', 'Public', 'Private']
 
 const { data: photos, error } = await useAccountPhotos()
 
-const gallery = ref<HTMLElement | null>(null)
+const galleryElement = ref<HTMLElement | null>(null)
 
-usePhotoSwipeGallery(gallery)
+usePhotoSwipeGallery(galleryElement)
 </script>
 
 <template>
-  <div ref="gallery">
+  <div>
     <div class="z-10 flex flex-wrap items-center justify-between gap-3 bg-muted py-4 sm:sticky sm:top-(--ui-header-height)">
       <div class="flex flex-wrap items-center gap-3">
         <UInput
@@ -34,23 +34,25 @@ usePhotoSwipeGallery(gallery)
       <span class="text-sm text-muted">{{ photos.length }} photos</span>
     </div>
 
-    <UEmpty
-      v-if="error"
-      icon="i-lucide-triangle-alert"
-      title="Photos are unavailable"
-      description="We could not load your photos. Try again later."
-    />
+    <div ref="galleryElement">
+      <UEmpty
+        v-if="error"
+        icon="i-lucide-triangle-alert"
+        title="Photos are unavailable"
+        description="We could not load your photos. Try again later."
+      />
 
-    <UEmpty
-      v-else-if="photos.length === 0"
-      icon="i-lucide-image"
-      title="No photos yet"
-      description="Upload your first photos to start your collection."
-    />
+      <UEmpty
+        v-else-if="photos.length === 0"
+        icon="i-lucide-image"
+        title="No photos yet"
+        description="Upload your first photos to start your collection."
+      />
 
-    <PhotoGrid
-      v-else
-      :photos="photos"
-    />
+      <PhotoGrid
+        v-else
+        :photos="photos"
+      />
+    </div>
   </div>
 </template>
