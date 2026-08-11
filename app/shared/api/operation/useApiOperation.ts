@@ -1,5 +1,5 @@
 import { ref } from '#imports'
-import { parseApiError } from '../error/apiError'
+import { parseApiError, VALIDATION_STATUS } from '../error/apiError'
 import { ApiResultStatus, type ApiOperationResponse } from '../result/apiResponse'
 
 export function useApiOperation<TArgs extends unknown[], TResult>(
@@ -18,16 +18,16 @@ export function useApiOperation<TArgs extends unknown[], TResult>(
       }
     }
     catch (error: unknown) {
-      const parsed = parseApiError(error)
+      const { httpStatus, fieldErrors } = parseApiError(error)
 
-      if (parsed.isValidationError) {
+      if (httpStatus === VALIDATION_STATUS) {
         return {
           status: ApiResultStatus.Validation,
-          errors: parsed.validationErrors,
+          errors: Object.entries(fieldErrors).map(([name, message]) => ({ name, message })),
         }
       }
 
-      console.error('[API operation failed]', { httpStatus: parsed.httpStatus, error })
+      console.error('[API operation failed]', { httpStatus, error })
 
       toast.add({ title: 'Something went wrong.', color: 'error' })
 

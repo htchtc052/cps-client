@@ -34,6 +34,7 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
 
 <template>
   <UForm
+    v-slot="{ errors }"
     :schema="photoStagingSchema"
     :state="state"
     class="space-y-4"
@@ -127,7 +128,11 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
       icon="i-lucide-upload"
       :label="uploadLabel"
       :loading="isUploading"
-      :disabled="state.photos.length === 0 || isUploading"
+      :disabled="
+        !state.photos.length
+          || errors.length > 0
+          || isUploading
+      "
     />
   </UForm>
 </template>

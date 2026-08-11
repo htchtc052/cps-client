@@ -10,7 +10,7 @@ function fetchError(status: number, data?: unknown): FetchError {
 }
 
 describe('parseApiError', () => {
-  it('maps Laravel field errors to one form error per field', () => {
+  it('maps Laravel field errors to one message per field', () => {
     const parsed = parseApiError(fetchError(422, {
       errors: {
         email: ['These credentials do not match our records.'],
@@ -18,11 +18,13 @@ describe('parseApiError', () => {
       },
     }))
 
-    expect(parsed.isValidationError).toBe(true)
-    expect(parsed.validationErrors).toEqual([
-      { name: 'email', message: 'These credentials do not match our records.' },
-      { name: 'password', message: 'The password field is required.' },
-    ])
+    expect(parsed).toEqual({
+      httpStatus: 422,
+      fieldErrors: {
+        email: 'These credentials do not match our records.',
+        password: 'The password field is required.',
+      },
+    })
   })
 
   it('keeps only the first message when a field has several', () => {
@@ -30,25 +32,19 @@ describe('parseApiError', () => {
       errors: { email: ['Must be an email.', 'Must be unique.'] },
     }))
 
-    expect(parsed.validationErrors).toEqual([{ name: 'email', message: 'Must be an email.' }])
+    expect(parsed.fieldErrors).toEqual({ email: 'Must be an email.' })
   })
 
-  it('reports a rejection without a body as validation with no field errors', () => {
-    const parsed = parseApiError(fetchError(422))
-
-    expect(parsed.isValidationError).toBe(true)
-    expect(parsed.validationErrors).toEqual([])
+  it('reports a rejection without a body as a 422 with no field errors', () => {
+    expect(parseApiError(fetchError(422))).toEqual({ httpStatus: 422, fieldErrors: {} })
   })
 
-  it('treats any other response as unactionable', () => {
-    const parsed = parseApiError(fetchError(500, { message: 'Server Error' }))
-
-    expect(parsed).toEqual({ isValidationError: false, httpStatus: 500, validationErrors: [] })
+  it('keeps the status and no field errors for any other response', () => {
+    expect(parseApiError(fetchError(500, { message: 'Server Error' })))
+      .toEqual({ httpStatus: 500, fieldErrors: {} })
   })
 
-  it('treats a non-HTTP failure as unactionable', () => {
-    const parsed = parseApiError(new Error('network down'))
-
-    expect(parsed).toEqual({ isValidationError: false, httpStatus: 0, validationErrors: [] })
+  it('reports a non-HTTP failure without a status', () => {
+    expect(parseApiError(new Error('network down'))).toEqual({ httpStatus: 0, fieldErrors: {} })
   })
 })

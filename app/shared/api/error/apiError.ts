@@ -1,34 +1,28 @@
-import type { FormError } from '@nuxt/ui'
 import { FetchError } from 'ofetch'
 
-const VALIDATION_STATUS = 422
+export const VALIDATION_STATUS = 422
 
-export type ParsedApiError = {
-  isValidationError: boolean
+export type ApiErrorDetails = {
   httpStatus: number
-  validationErrors: FormError[]
+  fieldErrors: Readonly<Record<string, string>>
 }
 
 type BackendErrors = Record<string, string[]>
 
-function mapValidationErrors(errors: BackendErrors): FormError[] {
-  return Object.entries(errors).map(([name, messages]) => ({
-    name,
-    message: messages[0] ?? '',
-  }))
+function mapFieldErrors(errors: BackendErrors): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(errors).map(([name, messages]) => [name, messages[0] ?? '']),
+  )
 }
 
-export function parseApiError(error: unknown): ParsedApiError {
+export function parseApiError(error: unknown): ApiErrorDetails {
   const isFetchError = error instanceof FetchError
   const httpStatus = isFetchError ? error.response?.status ?? 0 : 0
-  const isValidationError = httpStatus === VALIDATION_STATUS
+  const backendErrors: BackendErrors | undefined
+    = httpStatus === VALIDATION_STATUS && isFetchError ? error.data?.errors : undefined
 
   return {
-    isValidationError,
     httpStatus,
-    validationErrors:
-      isValidationError && isFetchError && error.data?.errors
-        ? mapValidationErrors(error.data.errors)
-        : [],
+    fieldErrors: backendErrors ? mapFieldErrors(backendErrors) : {},
   }
 }

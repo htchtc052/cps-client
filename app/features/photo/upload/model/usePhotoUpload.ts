@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { parseApiError } from '~/shared/api'
 import { usePhotoUploadRequest } from '../api/usePhotoUploadRequest'
-import { uploadPhotosSequentially, type PhotoUploadFailure } from './uploadPhotosSequentially'
+import { uploadPhotosSequentially } from './uploadPhotosSequentially'
 
 const GENERIC_FAILURE = 'Upload failed. Try again.'
 
@@ -24,35 +24,6 @@ export function usePhotoUpload() {
   const completed = ref(0)
   const total = ref(0)
 
-  function describeFailure({ file, error }: PhotoUploadFailure): PhotoUploadFailureView {
-    const parsed = parseApiError(error)
-    const message = parsed.validationErrors.find(({ name }) => name === 'photo')?.message
-
-    if (message) return { file, message }
-
-    console.error('[Photo upload failed]', { file: file.name, httpStatus: parsed.httpStatus, error })
-
-    return { file, message: GENERIC_FAILURE }
-  }
-
-  function announce(result: PhotoUploadResult): void {
-    if (result.failures.length === 0) {
-      toast.add({
-        title: `Created ${result.created} photos.`,
-        color: 'success',
-      })
-
-      return
-    }
-
-    toast.add({
-      title: result.created === 0
-        ? 'No photos were created.'
-        : `Created ${result.created} of ${result.attempted} photos. ${result.failures.length} couldn’t be uploaded.`,
-      color: 'warning',
-    })
-  }
-
   async function uploadPhotos(files: readonly File[]): Promise<PhotoUploadResult> {
     const staged = [...files]
 
@@ -68,14 +39,34 @@ export function usePhotoUpload() {
       const result: PhotoUploadResult = {
         attempted: outcome.attempted,
         created: outcome.created,
-        failures: outcome.failures.map(describeFailure),
+        failures: outcome.failures.map(({ file, error }) => {
+          const { httpStatus, fieldErrors } = parseApiError(error)
+
+          if (fieldErrors.photo) return { file, message: fieldErrors.photo }
+
+          console.error('[Photo upload failed]', { file: file.name, httpStatus, error })
+
+          return { file, message: GENERIC_FAILURE }
+        }),
       }
 
       if (result.failures.length === 0) {
+        toast.add({
+          title: `Created ${result.created} ${result.created === 1 ? 'photo' : 'photos'}.`,
+          color: 'success',
+        })
+
         await navigateTo('/owner')
+
+        return result
       }
 
-      announce(result)
+      toast.add({
+        title: result.created === 0
+          ? 'No photos were created.'
+          : `Created ${result.created} of ${result.attempted} photos. ${result.failures.length} couldn’t be uploaded.`,
+        color: 'warning',
+      })
 
       return result
     }
