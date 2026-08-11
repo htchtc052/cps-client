@@ -8,6 +8,9 @@ defineProps<{ photo: Photo }>()
   <article>
     <a
       :href="photo.originalUrl"
+      :data-pswp-width="photo.width"
+      :data-pswp-height="photo.height"
+      data-cropped="true"
       class="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-elevated ring ring-default"
     >
       <img

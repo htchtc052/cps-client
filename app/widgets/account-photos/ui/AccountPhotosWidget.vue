@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { PhotoGrid } from '~/entities/photo'
+import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
 import { useAccountPhotos } from '../model/useAccountPhotos'
 
 const visibilityFilters = ['All photos', 'Public', 'Private']
 
 const { data: photos, error } = await useAccountPhotos()
+
+const gallery = ref<HTMLElement | null>(null)
+
+usePhotoSwipeGallery(gallery)
 </script>
 
 <template>
-  <div>
+  <div ref="gallery">
     <div class="z-10 flex flex-wrap items-center justify-between gap-3 bg-muted py-4 sm:sticky sm:top-(--ui-header-height)">
       <div class="flex flex-wrap items-center gap-3">
         <UInput
