@@ -3,11 +3,23 @@ import { PhotoGrid } from '~/entities/photo'
 import { SelectablePhotoCard, usePhotoSelection } from '~/features/photo/photo-selection'
 import { useMoveToTrash } from '~/features/photo/trash'
 import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
-import { useAccountPhotos } from '../model/useAccountPhotos'
+import type { PhotoSort } from '../api/useAccountPhotosRequest'
+import { useAccountPhotos, type PhotoOrientationFilter } from '../model/useAccountPhotos'
 
-const visibilityFilters = ['All photos', 'Public', 'Private']
+const orientationItems: { label: string, value: PhotoOrientationFilter }[] = [
+  { label: 'All orientations', value: 'all' },
+  { label: 'Landscape', value: 'landscape' },
+  { label: 'Portrait', value: 'portrait' },
+  { label: 'Square', value: 'square' },
+]
 
-const { data: photos, error } = await useAccountPhotos()
+const sortItems: { label: string, value: PhotoSort }[] = [
+  { label: 'Newest', value: 'newest' },
+  { label: 'Oldest', value: 'oldest' },
+  { label: 'Name', value: 'name' },
+]
+
+const { photos, error, orientation, sort, isRefreshing, refresh } = await useAccountPhotos()
 
 const galleryElement = ref<HTMLElement | null>(null)
 
@@ -22,6 +34,24 @@ function onKeydown(event: KeyboardEvent) {
 
 onMounted(() => document.addEventListener('keydown', onKeydown))
 onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
+
+function onOrientationChange(value: PhotoOrientationFilter) {
+  orientation.value = value
+  clear()
+  refresh()
+}
+
+function onSortChange(value: PhotoSort) {
+  sort.value = value
+  clear()
+  refresh()
+}
+
+function showAllPhotos() {
+  orientation.value = 'all'
+  clear()
+  refresh()
+}
 </script>
 
 <template>
@@ -51,18 +81,20 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 
       <template v-else>
         <div class="flex flex-wrap items-center gap-3">
-          <UInput
-            icon="i-lucide-search"
-            placeholder="Search photos"
-            disabled
-            class="w-64"
+          <USelect
+            :items="orientationItems"
+            :model-value="orientation"
+            :disabled="isRefreshing"
+            class="w-44"
+            @update:model-value="onOrientationChange"
           />
 
           <USelect
-            :items="visibilityFilters"
-            :model-value="visibilityFilters[0]"
-            disabled
+            :items="sortItems"
+            :model-value="sort"
+            :disabled="isRefreshing"
             class="w-40"
+            @update:model-value="onSortChange"
           />
         </div>
 
@@ -79,10 +111,18 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
       />
 
       <UEmpty
-        v-else-if="photos.length === 0"
+        v-else-if="photos.length === 0 && orientation === 'all'"
         icon="i-lucide-image"
         title="No photos yet"
         description="Upload your first photos to start your collection."
+      />
+
+      <UEmpty
+        v-else-if="photos.length === 0"
+        icon="i-lucide-image-off"
+        title="No matching photos"
+        description="No photos match the selected orientation."
+        :actions="[{ label: 'Show all photos', onClick: showAllPhotos }]"
       />
 
       <PhotoGrid
