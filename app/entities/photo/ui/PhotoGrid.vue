@@ -7,10 +7,13 @@ defineProps<{ photos: readonly Photo[] }>()
 
 <template>
   <UPageGrid class="grid-cols-2 gap-4 xl:grid-cols-4">
-    <PhotoCard
+    <template
       v-for="photo in photos"
       :key="photo.id"
-      :photo="photo"
-    />
+    >
+      <slot :photo="photo">
+        <PhotoCard :photo="photo" />
+      </slot>
+    </template>
   </UPageGrid>
 </template>
