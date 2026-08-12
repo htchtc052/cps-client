@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { PhotoGrid } from '~/entities/photo'
 import { SelectablePhotoCard, usePhotoSelection } from '~/features/photo/photo-selection'
+import { useMoveToTrash } from '~/features/photo/trash'
 import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
 import { useAccountPhotos } from '../model/useAccountPhotos'
 
@@ -12,7 +13,8 @@ const galleryElement = ref<HTMLElement | null>(null)
 
 usePhotoSwipeGallery(galleryElement)
 
-const { count, isSelectionMode, isSelected, toggle, clear } = usePhotoSelection()
+const { count, ids, isSelectionMode, isSelected, toggle, clear } = usePhotoSelection()
+const { moveToTrash, isMoving } = useMoveToTrash(photos, clear)
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') clear()
@@ -33,7 +35,9 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
             label="Move to trash"
             icon="i-lucide-trash-2"
             color="error"
-            disabled
+            :loading="isMoving"
+            :disabled="isMoving"
+            @click="moveToTrash(ids)"
           />
 
           <UButton

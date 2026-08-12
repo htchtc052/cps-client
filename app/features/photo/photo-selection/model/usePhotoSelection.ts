@@ -5,6 +5,7 @@ export function usePhotoSelection() {
 
   const count = computed(() => selectedIds.value.size)
   const isSelectionMode = computed(() => count.value > 0)
+  const ids = computed(() => [...selectedIds.value])
 
   function isSelected(photoId: number): boolean {
     return selectedIds.value.has(photoId)
@@ -20,6 +21,7 @@ export function usePhotoSelection() {
 
   return {
     count,
+    ids,
     isSelectionMode,
     isSelected,
     toggle,

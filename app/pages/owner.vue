@@ -10,6 +10,15 @@ useHead({ title: 'Photos' })
     <UPageHeader title="Photos">
       <template #links>
         <UButton
+          to="/trash"
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-trash-2"
+        >
+          Trash
+        </UButton>
+
+        <UButton
           to="/upload"
           icon="i-lucide-upload"
         >
