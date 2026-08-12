@@ -7,9 +7,9 @@ defineProps<{ photo: Photo }>()
 <template>
   <article>
     <a
-      :href="photo.originalUrl"
-      :data-pswp-width="photo.width"
-      :data-pswp-height="photo.height"
+      :href="photo.viewerUrl"
+      :data-pswp-width="photo.viewerWidth"
+      :data-pswp-height="photo.viewerHeight"
       data-cropped="true"
       class="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-elevated ring ring-default"
     >
@@ -17,6 +17,8 @@ defineProps<{ photo: Photo }>()
         v-if="photo.previewUrl"
         :src="photo.previewUrl"
         :alt="photo.name"
+        loading="lazy"
+        decoding="async"
         class="size-full object-cover"
       >
 

@@ -7,4 +7,7 @@ export type Photo = {
   createdAt: string
   originalUrl: string
   previewUrl: string | null
+  viewerUrl: string
+  viewerWidth: number
+  viewerHeight: number
 }
