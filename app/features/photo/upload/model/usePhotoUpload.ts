@@ -1,9 +1,13 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { parseApiError } from '~/shared/api'
+import { usePhotoPreviewStatusRequest } from '../api/usePhotoPreviewStatusRequest'
 import { usePhotoUploadRequest } from '../api/usePhotoUploadRequest'
 import { uploadPhotosSequentially } from './uploadPhotosSequentially'
+import { waitForPreviews } from './waitForPreviews'
 
 const GENERIC_FAILURE = 'Upload failed. Try again.'
+
+export type PhotoUploadPhase = 'idle' | 'uploading' | 'finishing'
 
 export type PhotoUploadFailureView = {
   file: File
@@ -19,15 +23,28 @@ export type PhotoUploadResult = {
 export function usePhotoUpload() {
   const toast = useToast()
   const { uploadPhoto } = usePhotoUploadRequest()
+  const { getPreviewStatuses } = usePhotoPreviewStatusRequest()
 
-  const isUploading = ref(false)
+  const phase = ref<PhotoUploadPhase>('idle')
+  const isBusy = computed(() => phase.value !== 'idle')
   const completed = ref(0)
   const total = ref(0)
+
+  async function settlePreviews(photoIds: number[]): Promise<void> {
+    if (photoIds.length === 0) return
+
+    try {
+      await waitForPreviews(photoIds, getPreviewStatuses)
+    }
+    catch (error: unknown) {
+      console.error('[Preview status polling failed]', error)
+    }
+  }
 
   async function uploadPhotos(files: readonly File[]): Promise<PhotoUploadResult> {
     const staged = [...files]
 
-    isUploading.value = true
+    phase.value = 'uploading'
     completed.value = 0
     total.value = staged.length
 
@@ -36,9 +53,12 @@ export function usePhotoUpload() {
         completed.value = done
       })
 
+      phase.value = 'finishing'
+      await settlePreviews(outcome.created.map(photo => photo.id))
+
       const result: PhotoUploadResult = {
         attempted: outcome.attempted,
-        created: outcome.created,
+        created: outcome.created.length,
         failures: outcome.failures.map(({ file, error }) => {
           const { httpStatus, fieldErrors } = parseApiError(error)
 
@@ -71,13 +91,14 @@ export function usePhotoUpload() {
       return result
     }
     finally {
-      isUploading.value = false
+      phase.value = 'idle'
     }
   }
 
   return {
     uploadPhotos,
-    isUploading,
+    phase,
+    isBusy,
     completed,
     total,
   }

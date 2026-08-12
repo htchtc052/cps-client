@@ -9,14 +9,17 @@ const state = reactive<PhotoStagingDto>({
 
 const failures = ref<PhotoUploadFailureView[]>([])
 
-const { uploadPhotos, isUploading, completed, total } = usePhotoUpload()
+const { uploadPhotos, phase, isBusy, completed, total } = usePhotoUpload()
 
-const uploadLabel = computed(() =>
-  isUploading.value ? `Uploading ${completed.value} of ${total.value}` : 'Upload',
-)
+const uploadLabel = computed(() => {
+  if (phase.value === 'uploading') return `Uploading ${completed.value} of ${total.value}`
+  if (phase.value === 'finishing') return 'Finishing…'
+
+  return 'Upload'
+})
 
 function onStagingChange(photos: File[] | null | undefined) {
-  if (isUploading.value) return
+  if (isBusy.value) return
 
   failures.value = []
   state.photos = photos ?? []
@@ -55,8 +58,8 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
         description="Add photos in as many goes as you like, then upload them together."
         class="min-h-48"
         :interactive="false"
-        :disabled="isUploading"
-        :file-delete="!isUploading"
+        :disabled="isBusy"
+        :file-delete="!isBusy"
         @update:model-value="onStagingChange"
       >
         <template #actions="{ open }">
@@ -65,7 +68,7 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
             icon="i-lucide-upload"
             color="neutral"
             variant="outline"
-            :disabled="isUploading"
+            :disabled="isBusy"
             @click.stop="open()"
           />
         </template>
@@ -87,7 +90,7 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
                 color="neutral"
                 variant="outline"
                 class="-my-2"
-                :disabled="isUploading"
+                :disabled="isBusy"
                 @click="open()"
               />
 
@@ -96,7 +99,7 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
                 color="neutral"
                 variant="outline"
                 class="-my-2"
-                :disabled="isUploading"
+                :disabled="isBusy"
                 @click="removeFile()"
               />
             </div>
@@ -127,11 +130,11 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
       type="submit"
       icon="i-lucide-upload"
       :label="uploadLabel"
-      :loading="isUploading"
+      :loading="isBusy"
       :disabled="
         !state.photos.length
           || errors.length > 0
-          || isUploading
+          || isBusy
       "
     />
   </UForm>
