@@ -29,7 +29,7 @@ function onCardClick(event: MouseEvent) {
     <UCheckbox
       :model-value="selected"
       :aria-label="`Select ${photo.name}`"
-      class="absolute top-2 left-2 rounded bg-default/90 p-1"
+      class="absolute top-2 left-2"
       @click.stop
       @update:model-value="emit('toggle')"
     />
