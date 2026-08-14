@@ -8,6 +8,8 @@ const items = [
 <template>
   <UNavigationMenu
     :items="items"
-    variant="pill"
+    variant="link"
+    highlight
+    class="border-b border-default"
   />
 </template>

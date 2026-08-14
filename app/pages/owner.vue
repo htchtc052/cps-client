@@ -8,7 +8,13 @@ useHead({ title: 'Photos' })
 
 <template>
   <div>
-    <UPageHeader title="Photos">
+    <UPageHeader
+      title="Photos"
+      :ui="{
+        wrapper: 'lg:flex-col lg:items-start lg:justify-start',
+        links: 'w-full justify-between',
+      }"
+    >
       <template #links>
         <ProfileSharingButton />
 
