@@ -20,8 +20,7 @@ function onCardClick(event: MouseEvent) {
 
 <template>
   <div
-    class="relative rounded-lg"
-    :class="selected && 'ring-2 ring-inset ring-primary'"
+    class="relative"
     @click.capture="onCardClick"
   >
     <PhotoCard :photo="photo" />
