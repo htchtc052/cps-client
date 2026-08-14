@@ -29,12 +29,19 @@ export function usePhotoUpload() {
   const isBusy = computed(() => phase.value !== 'idle')
   const completed = ref(0)
   const total = ref(0)
+  const previewPending = ref(0)
+  const previewTotal = ref(0)
 
   async function settlePreviews(photoIds: number[]): Promise<void> {
     if (photoIds.length === 0) return
 
+    previewPending.value = photoIds.length
+    previewTotal.value = photoIds.length
+
     try {
-      await waitForPreviews(photoIds, getPreviewStatuses)
+      await waitForPreviews(photoIds, getPreviewStatuses, (pending) => {
+        previewPending.value = pending
+      })
     }
     catch (error: unknown) {
       console.error('[Preview status polling failed]', error)
@@ -47,6 +54,8 @@ export function usePhotoUpload() {
     phase.value = 'uploading'
     completed.value = 0
     total.value = staged.length
+    previewPending.value = 0
+    previewTotal.value = 0
 
     try {
       const outcome = await uploadPhotosSequentially(staged, uploadPhoto, (done) => {
@@ -101,5 +110,7 @@ export function usePhotoUpload() {
     isBusy,
     completed,
     total,
+    previewPending,
+    previewTotal,
   }
 }

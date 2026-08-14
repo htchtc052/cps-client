@@ -18,24 +18,34 @@ describe('waitForPreviews', () => {
       [{ photoId: 2, status: 'failed' }],
     ]
     const requested: number[][] = []
+    const progress: Array<{ pending: number, total: number }> = []
     const settled = vi.fn()
 
-    void waitForPreviews([1, 2], async (photoIds) => {
-      requested.push(photoIds)
+    void waitForPreviews(
+      [1, 2],
+      async (photoIds) => {
+        requested.push(photoIds)
 
-      return responses[requested.length - 1]!
-    }).then(settled)
+        return responses[requested.length - 1]!
+      },
+      (pending, total) => {
+        progress.push({ pending, total })
+      },
+    ).then(settled)
 
     await vi.advanceTimersByTimeAsync(0)
     expect(requested).toEqual([[1, 2]])
+    expect(progress).toEqual([{ pending: 2, total: 2 }])
     expect(settled).not.toHaveBeenCalled()
 
     await vi.advanceTimersByTimeAsync(1000)
     expect(requested).toEqual([[1, 2], [1, 2]])
+    expect(progress).toEqual([{ pending: 2, total: 2 }, { pending: 1, total: 2 }])
     expect(settled).not.toHaveBeenCalled()
 
     await vi.advanceTimersByTimeAsync(1000)
     expect(requested).toEqual([[1, 2], [1, 2], [2]])
+    expect(progress).toEqual([{ pending: 2, total: 2 }, { pending: 1, total: 2 }, { pending: 0, total: 2 }])
     expect(settled).toHaveBeenCalledOnce()
   })
 })

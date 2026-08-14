@@ -9,11 +9,11 @@ const state = reactive<PhotoStagingDto>({
 
 const failures = ref<PhotoUploadFailureView[]>([])
 
-const { uploadPhotos, phase, isBusy, completed, total } = usePhotoUpload()
+const { uploadPhotos, phase, isBusy, completed, total, previewPending, previewTotal } = usePhotoUpload()
 
 const uploadLabel = computed(() => {
   if (phase.value === 'uploading') return `Uploading ${completed.value} of ${total.value}`
-  if (phase.value === 'finishing') return 'Finishing…'
+  if (phase.value === 'finishing') return `Processing ${previewPending.value} of ${previewTotal.value} previews`
 
   return 'Upload'
 })
