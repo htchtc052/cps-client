@@ -5,7 +5,7 @@ defineProps<{ photo: Photo }>()
 </script>
 
 <template>
-  <article>
+  <article class="min-w-0">
     <a
       :href="photo.viewerUrl"
       :data-pswp-width="photo.viewerWidth"
@@ -28,5 +28,9 @@ defineProps<{ photo: Photo }>()
         class="size-8 text-dimmed"
       />
     </a>
+
+    <p class="mt-1 truncate text-sm text-toned">
+      {{ photo.name }}
+    </p>
   </article>
 </template>
