@@ -67,7 +67,8 @@ function showAllPhotos() {
             label="Show on profile"
             icon="i-lucide-eye"
             color="neutral"
-            variant="subtle"
+            variant="ghost"
+            size="sm"
             :disabled="isUpdating || isMoving"
             @click="setVisibility(ids, false)"
           />
@@ -76,7 +77,8 @@ function showAllPhotos() {
             label="Hide from profile"
             icon="i-lucide-eye-off"
             color="neutral"
-            variant="subtle"
+            variant="ghost"
+            size="sm"
             :disabled="isUpdating || isMoving"
             @click="setVisibility(ids, true)"
           />
@@ -85,6 +87,7 @@ function showAllPhotos() {
             label="Move to trash"
             icon="i-lucide-trash-2"
             color="error"
+            size="sm"
             :loading="isMoving"
             :disabled="isMoving || isUpdating"
             @click="moveToTrash(ids)"
@@ -93,7 +96,8 @@ function showAllPhotos() {
           <UButton
             label="Cancel"
             color="neutral"
-            variant="ghost"
+            variant="outline"
+            size="sm"
             @click="clear"
           />
         </div>
