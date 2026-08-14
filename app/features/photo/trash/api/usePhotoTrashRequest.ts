@@ -1,4 +1,4 @@
-import type { Photo } from '~/entities/photo'
+import type { AccountPhoto } from '~/entities/photo'
 
 export function usePhotoTrashRequest() {
   const client = useSanctumClient()
@@ -10,8 +10,8 @@ export function usePhotoTrashRequest() {
     })
   }
 
-  function getTrashedPhotos(): Promise<Photo[]> {
-    return client<Photo[]>('/api/photos/trash')
+  function getTrashedPhotos(): Promise<AccountPhoto[]> {
+    return client<AccountPhoto[]>('/api/photos/trash')
   }
 
   function restorePhoto(id: number): Promise<void> {

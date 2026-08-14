@@ -1,13 +1,13 @@
-import type { Photo } from '~/entities/photo'
+import type { AccountPhoto } from '~/entities/photo'
 
 export function usePhotoUploadRequest() {
   const client = useSanctumClient()
 
-  function uploadPhoto(file: File): Promise<Photo> {
+  function uploadPhoto(file: File): Promise<AccountPhoto> {
     const body = new FormData()
     body.append('photo', file)
 
-    return client<Photo>('/api/photos', {
+    return client<AccountPhoto>('/api/photos', {
       method: 'POST',
       body,
     })

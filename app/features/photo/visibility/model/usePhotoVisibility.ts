@@ -1,9 +1,9 @@
 import type { Ref } from 'vue'
-import type { Photo } from '~/entities/photo'
+import type { AccountPhoto } from '~/entities/photo'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { usePhotoVisibilityRequest } from '../api/usePhotoVisibilityRequest'
 
-export function usePhotoVisibility(photos: Ref<Photo[]>, clearSelection: () => void) {
+export function usePhotoVisibility(photos: Ref<AccountPhoto[]>, clearSelection: () => void) {
   const toast = useToast()
   const { updateVisibility } = usePhotoVisibilityRequest()
   const { execute, isLoading } = useApiOperation(updateVisibility)

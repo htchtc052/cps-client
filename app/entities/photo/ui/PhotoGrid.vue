@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Photo">
 import type { Photo } from '../model/photo'
 import PhotoCard from './PhotoCard.vue'
 
-defineProps<{ photos: readonly Photo[] }>()
+defineProps<{ photos: readonly T[] }>()
 </script>
 
 <template>

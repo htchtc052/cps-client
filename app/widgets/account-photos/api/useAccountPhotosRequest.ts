@@ -1,4 +1,4 @@
-import type { Photo } from '~/entities/photo'
+import type { AccountPhoto } from '~/entities/photo'
 
 export type PhotoOrientation = 'landscape' | 'portrait' | 'square'
 export type PhotoSort = 'newest' | 'oldest' | 'name'
@@ -11,8 +11,8 @@ export type AccountPhotosQuery = {
 export function useAccountPhotosRequest() {
   const client = useSanctumClient()
 
-  function getAccountPhotos(query: AccountPhotosQuery): Promise<Photo[]> {
-    return client<Photo[]>('/api/photos', {
+  function getAccountPhotos(query: AccountPhotosQuery): Promise<AccountPhoto[]> {
+    return client<AccountPhoto[]>('/api/photos', {
       query: {
         orientation: query.orientation,
         sort: query.sort,

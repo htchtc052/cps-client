@@ -1,9 +1,9 @@
 import type { Ref } from 'vue'
-import type { Photo } from '~/entities/photo'
+import type { AccountPhoto } from '~/entities/photo'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { usePhotoTrashRequest } from '../api/usePhotoTrashRequest'
 
-export function useMoveToTrash(photos: Ref<Photo[]>, clearSelection: () => void) {
+export function useMoveToTrash(photos: Ref<AccountPhoto[]>, clearSelection: () => void) {
   const toast = useToast()
   const { trashPhotos } = usePhotoTrashRequest()
   const { execute, isLoading } = useApiOperation(trashPhotos)

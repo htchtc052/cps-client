@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { type Photo, PhotoCard } from '~/entities/photo'
+import { type AccountPhoto, PhotoCard } from '~/entities/photo'
 
 const props = defineProps<{
-  photo: Photo
+  photo: AccountPhoto
   selected: boolean
   selectionMode: boolean
 }>()
