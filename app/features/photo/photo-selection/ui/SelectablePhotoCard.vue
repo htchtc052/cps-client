@@ -5,12 +5,22 @@ const props = defineProps<{
   photo: AccountPhoto
   selected: boolean
   selectionMode: boolean
+  visibilityDisabled: boolean
 }>()
 
-const emit = defineEmits<{ toggle: [] }>()
+const emit = defineEmits<{
+  toggle: []
+  'set-visibility': [hidden: boolean]
+}>()
+
+const visibilityLabel = computed(() => props.photo.isHidden
+  ? `Hidden from profile — show ${props.photo.name}`
+  : `Hide ${props.photo.name} from profile`,
+)
 
 function onCardClick(event: MouseEvent) {
   if (!props.selectionMode) return
+  if (event.target instanceof Element && event.target.closest('[data-photo-visibility-control]')) return
 
   event.preventDefault()
   event.stopPropagation()
@@ -33,14 +43,18 @@ function onCardClick(event: MouseEvent) {
       @update:model-value="emit('toggle')"
     />
 
-    <UBadge
-      v-if="!photo.isHidden"
-      label="On profile"
-      icon="i-lucide-eye"
-      color="primary"
-      variant="solid"
-      size="sm"
-      class="absolute top-2 right-2"
-    />
+    <UTooltip :text="visibilityLabel">
+      <UButton
+        data-photo-visibility-control
+        icon="i-lucide-eye-off"
+        color="neutral"
+        :variant="photo.isHidden ? 'solid' : 'subtle'"
+        size="sm"
+        :aria-label="visibilityLabel"
+        :disabled="visibilityDisabled"
+        class="absolute top-2 right-2"
+        @click.stop="emit('set-visibility', !photo.isHidden)"
+      />
+    </UTooltip>
   </div>
 </template>

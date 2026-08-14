@@ -165,7 +165,9 @@ function showAllPhotos() {
           :photo="photo"
           :selected="isSelected(photo.id)"
           :selection-mode="isSelectionMode"
+          :visibility-disabled="isUpdating || isMoving"
           @toggle="toggle(photo.id)"
+          @set-visibility="hidden => setVisibility([photo.id], hidden)"
         />
       </PhotoGrid>
     </div>
