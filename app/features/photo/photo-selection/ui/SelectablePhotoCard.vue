@@ -62,5 +62,14 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
         class="absolute top-2 right-2 bg-black/40 text-white hover:bg-black/60 focus-visible:bg-black/60"
       />
     </UDropdownMenu>
+
+    <span
+      v-if="photo.isHidden"
+      role="img"
+      aria-label="Hidden from public profile"
+      class="absolute bottom-2 right-2 flex items-center justify-center rounded-full bg-black/40 p-1"
+    >
+      <UIcon name="i-lucide-eye-off" class="size-3.5 text-white" />
+    </span>
   </div>
 </template>
