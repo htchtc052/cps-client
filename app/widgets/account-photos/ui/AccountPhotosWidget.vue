@@ -4,6 +4,7 @@ import { SelectablePhotoCard, usePhotoSelection } from '~/features/photo/photo-s
 import { useMoveToTrash } from '~/features/photo/trash'
 import { usePhotoVisibility } from '~/features/photo/visibility'
 import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
+import { PhotoLibraryNavigation } from '~/widgets/photo-library-navigation'
 import type { PhotoSort } from '../api/useAccountPhotosRequest'
 import { useAccountPhotos, type PhotoOrientationFilter } from '../model/useAccountPhotos'
 
@@ -105,6 +106,8 @@ function showAllPhotos() {
 
       <template v-else>
         <div class="flex flex-wrap items-center gap-3">
+          <PhotoLibraryNavigation />
+
           <USelect
             :items="orientationItems"
             :model-value="orientation"

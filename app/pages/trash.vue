@@ -2,6 +2,7 @@
 import { PhotoGrid } from '~/entities/photo'
 import { RestorablePhotoCard, useTrashActions, useTrashedPhotos } from '~/features/photo/trash'
 import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
+import { PhotoLibraryNavigation } from '~/widgets/photo-library-navigation'
 
 definePageMeta({ layout: 'account', middleware: ['sanctum:auth'] })
 useHead({ title: 'Trash' })
@@ -39,10 +40,11 @@ usePhotoSwipeGallery(galleryElement)
       </template>
     </UPageHeader>
 
-    <div
-      ref="galleryElement"
-      class="mt-8"
-    >
+    <div class="z-10 flex flex-wrap items-center gap-3 bg-muted py-4 sm:sticky sm:top-(--ui-header-height)">
+      <PhotoLibraryNavigation />
+    </div>
+
+    <div ref="galleryElement">
       <UEmpty
         v-if="error"
         icon="i-lucide-triangle-alert"
