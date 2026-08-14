@@ -105,27 +105,31 @@ function showAllPhotos() {
       </template>
 
       <template v-else>
-        <div class="flex flex-wrap items-center gap-3">
-          <PhotoLibraryNavigation />
+        <div class="w-full space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <PhotoLibraryNavigation />
 
-          <USelect
-            :items="orientationItems"
-            :model-value="orientation"
-            :disabled="isRefreshing"
-            class="w-44"
-            @update:model-value="onOrientationChange"
-          />
+            <span class="text-sm text-muted">{{ photos.length }} photos</span>
+          </div>
 
-          <USelect
-            :items="sortItems"
-            :model-value="sort"
-            :disabled="isRefreshing"
-            class="w-40"
-            @update:model-value="onSortChange"
-          />
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <USelect
+              :items="orientationItems"
+              :model-value="orientation"
+              :disabled="isRefreshing"
+              class="w-full"
+              @update:model-value="onOrientationChange"
+            />
+
+            <USelect
+              :items="sortItems"
+              :model-value="sort"
+              :disabled="isRefreshing"
+              class="w-full"
+              @update:model-value="onSortChange"
+            />
+          </div>
         </div>
-
-        <span class="text-sm text-muted">{{ photos.length }} photos</span>
       </template>
     </div>
 
