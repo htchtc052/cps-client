@@ -6,7 +6,7 @@ defineProps<{ photos: readonly T[] }>()
 </script>
 
 <template>
-  <UPageGrid class="grid-cols-2 gap-4 xl:grid-cols-4">
+  <UPageGrid class="grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
     <template
       v-for="photo in photos"
       :key="photo.id"
