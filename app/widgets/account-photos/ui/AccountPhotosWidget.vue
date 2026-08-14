@@ -65,7 +65,7 @@ function showAllPhotos() {
 
         <div class="flex flex-wrap items-center gap-2">
           <UButton
-            label="Show on profile"
+            label="Show on public profile"
             icon="i-lucide-eye"
             color="neutral"
             variant="ghost"
@@ -75,7 +75,7 @@ function showAllPhotos() {
           />
 
           <UButton
-            label="Hide from profile"
+            label="Hide from public profile"
             icon="i-lucide-eye-off"
             color="neutral"
             variant="ghost"
@@ -164,10 +164,10 @@ function showAllPhotos() {
         <SelectablePhotoCard
           :photo="photo"
           :selected="isSelected(photo.id)"
-          :selection-mode="isSelectionMode"
-          :visibility-disabled="isUpdating || isMoving"
+          :actions-disabled="isUpdating || isMoving"
           @toggle="toggle(photo.id)"
           @set-visibility="hidden => setVisibility([photo.id], hidden)"
+          @move-to-trash="moveToTrash([photo.id])"
         />
       </PhotoGrid>
     </div>

@@ -23,8 +23,8 @@ export function usePhotoVisibility(photos: Ref<AccountPhoto[]>, clearSelection: 
 
     toast.add({
       title: hidden
-        ? `Hidden ${subject} from profile.`
-        : `Added ${subject} to profile.`,
+        ? `Removed ${subject} from public profile.`
+        : `Added ${subject} to public profile.`,
       color: 'success',
     })
   }

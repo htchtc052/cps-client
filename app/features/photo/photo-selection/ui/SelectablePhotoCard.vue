@@ -1,38 +1,46 @@
 <script setup lang="ts">
+import type { DropdownMenuItem } from '@nuxt/ui'
 import { type AccountPhoto, PhotoCard } from '~/entities/photo'
 
 const props = defineProps<{
   photo: AccountPhoto
   selected: boolean
-  selectionMode: boolean
-  visibilityDisabled: boolean
+  actionsDisabled: boolean
 }>()
 
 const emit = defineEmits<{
   toggle: []
   'set-visibility': [hidden: boolean]
+  'move-to-trash': []
 }>()
 
-const visibilityLabel = computed(() => props.photo.isHidden
-  ? `Hidden from profile — show ${props.photo.name}`
-  : `Hide ${props.photo.name} from profile`,
-)
-
-function onCardClick(event: MouseEvent) {
-  if (!props.selectionMode) return
-  if (event.target instanceof Element && event.target.closest('[data-photo-visibility-control]')) return
-
-  event.preventDefault()
-  event.stopPropagation()
-  emit('toggle')
-}
+const menuItems = computed<DropdownMenuItem[][]>(() => [
+  [
+    props.photo.isHidden
+      ? {
+          label: 'Show on public profile',
+          icon: 'i-lucide-eye',
+          onSelect: () => emit('set-visibility', false),
+        }
+      : {
+          label: 'Hide from public profile',
+          icon: 'i-lucide-eye-off',
+          onSelect: () => emit('set-visibility', true),
+        },
+  ],
+  [
+    {
+      label: 'Move to trash',
+      icon: 'i-lucide-trash-2',
+      color: 'error',
+      onSelect: () => emit('move-to-trash'),
+    },
+  ],
+])
 </script>
 
 <template>
-  <div
-    class="relative"
-    @click.capture="onCardClick"
-  >
+  <div class="relative">
     <PhotoCard :photo="photo" />
 
     <UCheckbox
@@ -43,18 +51,16 @@ function onCardClick(event: MouseEvent) {
       @update:model-value="emit('toggle')"
     />
 
-    <UTooltip :text="visibilityLabel">
+    <UDropdownMenu :items="menuItems">
       <UButton
-        data-photo-visibility-control
-        icon="i-lucide-eye-off"
+        icon="i-lucide-ellipsis-vertical"
         color="neutral"
-        :variant="photo.isHidden ? 'solid' : 'subtle'"
-        size="sm"
-        :aria-label="visibilityLabel"
-        :disabled="visibilityDisabled"
-        class="absolute top-2 right-2"
-        @click.stop="emit('set-visibility', !photo.isHidden)"
+        variant="ghost"
+        size="xs"
+        :aria-label="`Actions for ${photo.name}`"
+        :disabled="actionsDisabled"
+        class="absolute top-2 right-2 bg-black/40 text-white hover:bg-black/60 focus-visible:bg-black/60"
       />
-    </UTooltip>
+    </UDropdownMenu>
   </div>
 </template>
