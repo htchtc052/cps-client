@@ -2,6 +2,7 @@
 import { PhotoGrid } from '~/entities/photo'
 import { SelectablePhotoCard, usePhotoSelection } from '~/features/photo/photo-selection'
 import { useMoveToTrash } from '~/features/photo/trash'
+import { usePhotoVisibility } from '~/features/photo/visibility'
 import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
 import type { PhotoSort } from '../api/useAccountPhotosRequest'
 import { useAccountPhotos, type PhotoOrientationFilter } from '../model/useAccountPhotos'
@@ -27,6 +28,7 @@ usePhotoSwipeGallery(galleryElement)
 
 const { count, ids, isSelectionMode, isSelected, toggle, clear } = usePhotoSelection()
 const { moveToTrash, isMoving } = useMoveToTrash(photos, clear)
+const { setVisibility, isUpdating } = usePhotoVisibility(photos, clear)
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') clear()
@@ -62,11 +64,29 @@ function showAllPhotos() {
 
         <div class="flex flex-wrap items-center gap-2">
           <UButton
+            label="Show on profile"
+            icon="i-lucide-eye"
+            color="neutral"
+            variant="subtle"
+            :disabled="isUpdating || isMoving"
+            @click="setVisibility(ids, false)"
+          />
+
+          <UButton
+            label="Hide from profile"
+            icon="i-lucide-eye-off"
+            color="neutral"
+            variant="subtle"
+            :disabled="isUpdating || isMoving"
+            @click="setVisibility(ids, true)"
+          />
+
+          <UButton
             label="Move to trash"
             icon="i-lucide-trash-2"
             color="error"
             :loading="isMoving"
-            :disabled="isMoving"
+            :disabled="isMoving || isUpdating"
             @click="moveToTrash(ids)"
           />
 

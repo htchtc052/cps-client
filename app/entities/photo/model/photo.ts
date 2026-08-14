@@ -5,6 +5,7 @@ export type Photo = {
   width: number
   height: number
   createdAt: string
+  isHidden: boolean
   originalUrl: string
   previewUrl: string | null
   viewerUrl: string

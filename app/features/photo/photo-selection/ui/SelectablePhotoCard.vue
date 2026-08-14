@@ -33,5 +33,15 @@ function onCardClick(event: MouseEvent) {
       @click.stop
       @update:model-value="emit('toggle')"
     />
+
+    <UBadge
+      v-if="!photo.isHidden"
+      label="On profile"
+      icon="i-lucide-eye"
+      color="primary"
+      variant="solid"
+      size="sm"
+      class="absolute top-2 right-2"
+    />
   </div>
 </template>
