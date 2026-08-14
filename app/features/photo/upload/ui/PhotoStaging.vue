@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
-import { photoStagingSchema, type PhotoStagingDto } from '../contract/photo-staging.contract'
+import { MAX_STAGED_PHOTOS, photoStagingSchema, type PhotoStagingDto } from '../contract/photo-staging.contract'
 import { usePhotoUpload, type PhotoUploadFailureView } from '../model/usePhotoUpload'
+
+const toast = useToast()
 
 const state = reactive<PhotoStagingDto>({
   photos: [],
@@ -22,7 +24,21 @@ function onStagingChange(photos: File[] | null | undefined) {
   if (isBusy.value) return
 
   failures.value = []
-  state.photos = photos ?? []
+
+  const nextPhotos = photos ?? []
+
+  if (nextPhotos.length > MAX_STAGED_PHOTOS) {
+    state.photos = nextPhotos.slice(0, MAX_STAGED_PHOTOS)
+
+    toast.add({
+      title: `You can upload up to ${MAX_STAGED_PHOTOS} photos at a time. The remaining files weren’t added.`,
+      color: 'warning',
+    })
+
+    return
+  }
+
+  state.photos = nextPhotos
 }
 
 async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
@@ -46,7 +62,7 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
     <UFormField
       name="photos"
       label="Photos"
-      description="JPEG, PNG or WebP. 15MB max."
+      description="JPEG, PNG or WebP. 15MB max. Up to 50 photos per upload."
     >
       <UFileUpload
         :model-value="state.photos"

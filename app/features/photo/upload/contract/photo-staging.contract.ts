@@ -3,6 +3,8 @@ import * as yup from 'yup'
 const MAX_FILE_SIZE = 15_000 * 1024
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
+export const MAX_STAGED_PHOTOS = 50
+
 function isUploadable(file: File): boolean {
   const hasAcceptedType = file.type === '' || ACCEPTED_TYPES.includes(file.type)
 

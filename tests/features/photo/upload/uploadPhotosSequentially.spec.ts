@@ -26,7 +26,7 @@ function file(name: string): File {
 }
 
 describe('uploadPhotosSequentially', () => {
-  it('uploads one file at a time, keeps the created photos in order and reports the failed file with its error', async () => {
+  it('uploads one file at a time, keeps the succeeded photos in order and reports the failed file with its error', async () => {
     const pending = [deferred(), deferred(), deferred()]
     const started: string[] = []
     const progress: number[] = []
@@ -62,7 +62,7 @@ describe('uploadPhotosSequentially', () => {
 
     const result = await outcome
     expect(result.attempted).toBe(3)
-    expect(result.created).toEqual([{ id: 1 }, { id: 3 }])
+    expect(result.succeeded).toEqual([{ id: 1 }, { id: 3 }])
     expect(result.failures).toHaveLength(1)
     expect(result.failures[0]!.file).toBe(files[1])
     expect(result.failures[0]!.error).toBe(rejection)

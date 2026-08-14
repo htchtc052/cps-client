@@ -17,7 +17,22 @@ export type PhotoUploadFailureView = {
 export type PhotoUploadResult = {
   attempted: number
   created: number
+  duplicates: number
   failures: PhotoUploadFailureView[]
+}
+
+function pluralize(count: number, singular: string, plural: string): string {
+  return count === 1 ? singular : plural
+}
+
+function describeUploadOutcome(created: number, duplicates: number): string {
+  if (duplicates === 0) return `Added ${created} ${pluralize(created, 'photo', 'photos')}.`
+
+  if (created === 0) {
+    return `All ${duplicates} ${pluralize(duplicates, 'photo', 'photos')} already ${pluralize(duplicates, 'exists', 'exist')} in your account.`
+  }
+
+  return `Added ${created} ${pluralize(created, 'photo', 'photos')}. ${duplicates} already ${pluralize(duplicates, 'exists', 'exist')} in your account.`
 }
 
 export function usePhotoUpload() {
@@ -62,12 +77,16 @@ export function usePhotoUpload() {
         completed.value = done
       })
 
+      const createdPhotos = outcome.succeeded.filter(photo => photo.created)
+      const duplicatePhotos = outcome.succeeded.filter(photo => !photo.created)
+
       phase.value = 'finishing'
-      await settlePreviews(outcome.created.map(photo => photo.id))
+      await settlePreviews(createdPhotos.map(photo => photo.id))
 
       const result: PhotoUploadResult = {
         attempted: outcome.attempted,
-        created: outcome.created.length,
+        created: createdPhotos.length,
+        duplicates: duplicatePhotos.length,
         failures: outcome.failures.map(({ file, error }) => {
           const { httpStatus, fieldErrors } = parseApiError(error)
 
@@ -81,7 +100,7 @@ export function usePhotoUpload() {
 
       if (result.failures.length === 0) {
         toast.add({
-          title: `Created ${result.created} ${result.created === 1 ? 'photo' : 'photos'}.`,
+          title: describeUploadOutcome(result.created, result.duplicates),
           color: 'success',
         })
 
