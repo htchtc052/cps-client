@@ -11,8 +11,13 @@ export function usePhotoSharingRequest() {
     return client(`/api/photos/${photoId}/share`, { method: 'DELETE' })
   }
 
+  function getSharedPhotos(): Promise<AccountPhoto[]> {
+    return client<AccountPhoto[]>('/api/photos/shared')
+  }
+
   return {
     enableSharing,
     disableSharing,
+    getSharedPhotos,
   }
 }

@@ -11,32 +11,22 @@ const props = defineProps<{
 const emit = defineEmits<{
   toggle: []
   share: []
-  'copy-share-link': []
-  'stop-sharing': []
+  'manage-share': []
   'move-to-trash': []
 }>()
 
 const menuItems = computed<DropdownMenuItem[][]>(() => [
-  props.photo.shareToken === null
+  ...(props.photo.shareToken === null
     ? [
-        {
-          label: 'Share photo',
-          icon: 'i-lucide-link',
-          onSelect: () => emit('share'),
-        },
+        [
+          {
+            label: 'Share photo',
+            icon: 'i-lucide-link',
+            onSelect: () => emit('share'),
+          },
+        ],
       ]
-    : [
-        {
-          label: 'Copy share link',
-          icon: 'i-lucide-copy',
-          onSelect: () => emit('copy-share-link'),
-        },
-        {
-          label: 'Stop sharing',
-          icon: 'i-lucide-link-2-off',
-          onSelect: () => emit('stop-sharing'),
-        },
-      ],
+    : []),
   [
     {
       label: 'Move to trash',
@@ -72,13 +62,16 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
       />
     </UDropdownMenu>
 
-    <span
+    <UButton
       v-if="photo.shareToken !== null"
-      role="img"
-      aria-label="Shared by link"
-      class="absolute bottom-2 right-2 flex items-center justify-center rounded-full bg-black/40 p-1"
-    >
-      <UIcon name="i-lucide-link" class="size-3.5 text-white" />
-    </span>
+      icon="i-lucide-link"
+      color="neutral"
+      variant="ghost"
+      size="xs"
+      :aria-label="`Manage share link for ${photo.name}`"
+      :disabled="actionsDisabled"
+      class="absolute bottom-2 right-2 bg-black/40 text-white hover:bg-black/60 focus-visible:bg-black/60"
+      @click.stop="emit('manage-share')"
+    />
   </div>
 </template>

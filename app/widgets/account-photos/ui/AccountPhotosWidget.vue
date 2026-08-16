@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import type { AccountPhoto } from '~/entities/photo'
 import { PhotoGrid } from '~/entities/photo'
 import { SelectablePhotoCard, usePhotoSelection } from '~/features/photo/photo-selection'
-import { usePhotoSharing } from '~/features/photo/sharing'
+import { PhotoShareDialog, usePhotoSharing } from '~/features/photo/sharing'
 import { useMoveToTrash } from '~/features/photo/trash'
 import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
 import { PhotoLibraryNavigation } from '~/widgets/photo-library-navigation'
@@ -29,7 +30,45 @@ usePhotoSwipeGallery(galleryElement)
 
 const { count, ids, isSelectionMode, isSelected, toggle, clear } = usePhotoSelection()
 const { moveToTrash, isMoving } = useMoveToTrash(photos, clear)
-const { share, copyLink, disableSharing, isSharing, isDisablingSharing } = usePhotoSharing(photos)
+const { share, shareUrl, copyLink, disableSharing, isSharing, isDisablingSharing } = usePhotoSharing(photos)
+
+const singleSelectedPhoto = computed<AccountPhoto | null>(() => {
+  if (count.value !== 1) return null
+
+  return photos.value.find(photo => photo.id === ids.value[0]) ?? null
+})
+
+const shareDialogPhoto = ref<AccountPhoto | null>(null)
+const isShareDialogOpen = ref(false)
+
+async function openShareDialog(photo: AccountPhoto): Promise<void> {
+  if (photo.shareToken === null) {
+    const created = await share(photo.id)
+
+    if (!created) return
+
+    shareDialogPhoto.value = created
+  }
+  else {
+    shareDialogPhoto.value = photo
+  }
+
+  isShareDialogOpen.value = true
+}
+
+function handleCopyLink(): void {
+  if (!shareDialogPhoto.value?.shareToken) return
+
+  copyLink(shareDialogPhoto.value.shareToken)
+}
+
+async function handleDeleteLink(): Promise<void> {
+  if (!shareDialogPhoto.value) return
+
+  const succeeded = await disableSharing(shareDialogPhoto.value.id)
+
+  if (succeeded) isShareDialogOpen.value = false
+}
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') clear()
@@ -64,6 +103,17 @@ function showAllPhotos() {
         <span class="text-sm font-medium">{{ count }} selected</span>
 
         <div class="flex flex-wrap items-center gap-2">
+          <UButton
+            v-if="singleSelectedPhoto"
+            :label="singleSelectedPhoto.shareToken === null ? 'Share photo' : 'Manage link'"
+            icon="i-lucide-link"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            :disabled="isSharing || isDisablingSharing || isMoving"
+            @click="openShareDialog(singleSelectedPhoto)"
+          />
+
           <UButton
             label="Move to trash"
             icon="i-lucide-trash-2"
@@ -146,12 +196,20 @@ function showAllPhotos() {
           :selected="isSelected(photo.id)"
           :actions-disabled="isSharing || isDisablingSharing || isMoving"
           @toggle="toggle(photo.id)"
-          @share="share(photo.id)"
-          @copy-share-link="copyLink(photo.shareToken!)"
-          @stop-sharing="disableSharing(photo.id)"
+          @share="openShareDialog(photo)"
+          @manage-share="openShareDialog(photo)"
           @move-to-trash="moveToTrash([photo.id])"
         />
       </PhotoGrid>
     </div>
+
+    <PhotoShareDialog
+      v-model:open="isShareDialogOpen"
+      :photo-name="shareDialogPhoto?.name ?? ''"
+      :share-url="shareDialogPhoto?.shareToken ? shareUrl(shareDialogPhoto.shareToken) : ''"
+      :is-deleting="isDisablingSharing"
+      @copy-link="handleCopyLink"
+      @delete-link="handleDeleteLink"
+    />
   </div>
 </template>

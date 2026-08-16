@@ -4,7 +4,11 @@ import type { AccountPhoto } from '~/entities/photo'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { usePhotoSharingRequest } from '../api/usePhotoSharingRequest'
 
-export function usePhotoSharing(photos: Ref<AccountPhoto[]>) {
+export type UsePhotoSharingOptions = {
+  onDisabled?: (photoId: number) => void
+}
+
+export function usePhotoSharing(photos: Ref<AccountPhoto[]>, options: UsePhotoSharingOptions = {}) {
   const toast = useToast()
   const requestUrl = useRequestURL()
   const { copy } = useClipboard({ legacy: true })
@@ -12,38 +16,50 @@ export function usePhotoSharing(photos: Ref<AccountPhoto[]>) {
   const enableOperation = useApiOperation(enableSharing)
   const disableOperation = useApiOperation(disablePhotoSharing)
 
-  async function copyLink(shareToken: string): Promise<void> {
-    await copy(`${requestUrl.origin}/p/${shareToken}`)
-
-    toast.add({ title: 'Share link copied.', color: 'success' })
+  function shareUrl(shareToken: string): string {
+    return `${requestUrl.origin}/p/${shareToken}`
   }
 
-  async function share(photoId: number): Promise<void> {
+  async function share(photoId: number): Promise<AccountPhoto | null> {
     const response = await enableOperation.execute(photoId)
 
-    if (response.status !== ApiResultStatus.Success) return
+    if (response.status !== ApiResultStatus.Success) return null
 
     photos.value = photos.value.map(photo =>
       photo.id === photoId ? response.data : photo,
     )
 
-    await copyLink(response.data.shareToken!)
+    return response.data
   }
 
-  async function disableSharing(photoId: number): Promise<void> {
+  async function copyLink(shareToken: string): Promise<void> {
+    await copy(shareUrl(shareToken))
+
+    toast.add({ title: 'Share link copied.', color: 'success' })
+  }
+
+  async function disableSharing(photoId: number): Promise<boolean> {
     const response = await disableOperation.execute(photoId)
 
-    if (response.status !== ApiResultStatus.Success) return
+    if (response.status !== ApiResultStatus.Success) return false
 
-    photos.value = photos.value.map(photo =>
-      photo.id === photoId ? { ...photo, shareToken: null } : photo,
-    )
+    if (options.onDisabled) {
+      options.onDisabled(photoId)
+    }
+    else {
+      photos.value = photos.value.map(photo =>
+        photo.id === photoId ? { ...photo, shareToken: null } : photo,
+      )
+    }
 
     toast.add({ title: 'Photo sharing disabled.', color: 'success' })
+
+    return true
   }
 
   return {
     share,
+    shareUrl,
     copyLink,
     disableSharing,
     isSharing: enableOperation.isLoading,
