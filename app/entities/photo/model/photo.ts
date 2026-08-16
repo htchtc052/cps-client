@@ -12,6 +12,6 @@ export type Photo = {
 export type AccountPhoto = Photo & {
   originalName: string
   createdAt: string
-  isHidden: boolean
+  shareToken: string | null
   originalUrl: string
 }

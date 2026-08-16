@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { PhotoGrid } from '~/entities/photo'
 import { SelectablePhotoCard, usePhotoSelection } from '~/features/photo/photo-selection'
+import { usePhotoSharing } from '~/features/photo/sharing'
 import { useMoveToTrash } from '~/features/photo/trash'
-import { usePhotoVisibility } from '~/features/photo/visibility'
 import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
 import { PhotoLibraryNavigation } from '~/widgets/photo-library-navigation'
 import type { PhotoSort } from '../api/useAccountPhotosRequest'
@@ -29,7 +29,7 @@ usePhotoSwipeGallery(galleryElement)
 
 const { count, ids, isSelectionMode, isSelected, toggle, clear } = usePhotoSelection()
 const { moveToTrash, isMoving } = useMoveToTrash(photos, clear)
-const { setVisibility, isUpdating } = usePhotoVisibility(photos, clear)
+const { share, copyLink, disableSharing, isSharing, isDisablingSharing } = usePhotoSharing(photos)
 
 function onKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') clear()
@@ -65,32 +65,12 @@ function showAllPhotos() {
 
         <div class="flex flex-wrap items-center gap-2">
           <UButton
-            label="Show on public profile"
-            icon="i-lucide-eye"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :disabled="isUpdating || isMoving"
-            @click="setVisibility(ids, false)"
-          />
-
-          <UButton
-            label="Hide from public profile"
-            icon="i-lucide-eye-off"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :disabled="isUpdating || isMoving"
-            @click="setVisibility(ids, true)"
-          />
-
-          <UButton
             label="Move to trash"
             icon="i-lucide-trash-2"
             color="error"
             size="sm"
             :loading="isMoving"
-            :disabled="isMoving || isUpdating"
+            :disabled="isMoving"
             @click="moveToTrash(ids)"
           />
 
@@ -164,9 +144,11 @@ function showAllPhotos() {
         <SelectablePhotoCard
           :photo="photo"
           :selected="isSelected(photo.id)"
-          :actions-disabled="isUpdating || isMoving"
+          :actions-disabled="isSharing || isDisablingSharing || isMoving"
           @toggle="toggle(photo.id)"
-          @set-visibility="hidden => setVisibility([photo.id], hidden)"
+          @share="share(photo.id)"
+          @copy-share-link="copyLink(photo.shareToken!)"
+          @stop-sharing="disableSharing(photo.id)"
           @move-to-trash="moveToTrash([photo.id])"
         />
       </PhotoGrid>
