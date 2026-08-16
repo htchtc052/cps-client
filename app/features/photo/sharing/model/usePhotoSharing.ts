@@ -1,3 +1,4 @@
+import { useClipboard } from '@vueuse/core'
 import type { Ref } from 'vue'
 import type { AccountPhoto } from '~/entities/photo'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
@@ -6,12 +7,13 @@ import { usePhotoSharingRequest } from '../api/usePhotoSharingRequest'
 export function usePhotoSharing(photos: Ref<AccountPhoto[]>) {
   const toast = useToast()
   const requestUrl = useRequestURL()
+  const { copy } = useClipboard({ legacy: true })
   const { enableSharing, disableSharing: disablePhotoSharing } = usePhotoSharingRequest()
   const enableOperation = useApiOperation(enableSharing)
   const disableOperation = useApiOperation(disablePhotoSharing)
 
   async function copyLink(shareToken: string): Promise<void> {
-    await navigator.clipboard.writeText(`${requestUrl.origin}/p/${shareToken}`)
+    await copy(`${requestUrl.origin}/p/${shareToken}`)
 
     toast.add({ title: 'Share link copied.', color: 'success' })
   }
