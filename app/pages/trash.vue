@@ -13,21 +13,46 @@ const { restore, empty, isRestoring, isEmptying } = useTrashActions(photos)
 const galleryElement = ref<HTMLElement | null>(null)
 
 usePhotoSwipeGallery(galleryElement)
+
+async function confirmEmpty(close: () => void): Promise<void> {
+  await empty()
+  close()
+}
 </script>
 
 <template>
   <div>
     <UPageHeader title="Trash">
       <template #links>
-        <UButton
-          label="Empty trash"
-          icon="i-lucide-trash-2"
-          color="error"
-          variant="subtle"
-          :loading="isEmptying"
-          :disabled="isEmptying || photos.length === 0"
-          @click="empty"
-        />
+        <UModal
+          title="Empty trash?"
+          description="This permanently deletes all photos in trash. This can't be undone."
+        >
+          <UButton
+            label="Empty trash"
+            icon="i-lucide-trash-2"
+            color="error"
+            variant="subtle"
+            :loading="isEmptying"
+            :disabled="isEmptying || photos.length === 0"
+          />
+
+          <template #footer="{ close }">
+            <UButton
+              label="Cancel"
+              color="neutral"
+              variant="outline"
+              @click="close"
+            />
+
+            <UButton
+              label="Empty trash"
+              color="error"
+              :loading="isEmptying"
+              @click="confirmEmpty(close)"
+            />
+          </template>
+        </UModal>
 
         <UButton
           to="/owner"
