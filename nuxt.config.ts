@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   ui: {
     colorMode: false,
+    fonts: false,
   },
   compatibilityDate: '2026-08-08',
   devtools: { enabled: true },
