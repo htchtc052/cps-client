@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
 import { useSharedPhoto } from '../model/useSharedPhoto'
 
 const props = defineProps<{ token: string }>()
 
 const { data: photo, error } = await useSharedPhoto(props.token)
+
+const galleryElement = ref<HTMLElement | null>(null)
+
+usePhotoSwipeGallery(galleryElement)
 
 const statusCode = computed(() => error.value?.statusCode)
 const isNotFound = computed(() => statusCode.value === 403 || statusCode.value === 404)
@@ -32,7 +37,6 @@ useHead({
       v-if="isNotFound"
       icon="i-lucide-image-off"
       title="This shared photo is unavailable"
-      description="The link may have expired or been disabled."
     />
 
     <UEmpty
@@ -54,12 +58,21 @@ useHead({
         </template>
       </UPageHeader>
 
-      <div class="mt-8 flex justify-center">
-        <img
-          :src="photo.viewerUrl"
-          :alt="photo.name"
-          class="max-h-[80vh] max-w-full object-contain"
+      <div
+        ref="galleryElement"
+        class="mt-8 flex justify-center"
+      >
+        <a
+          :href="photo.viewerUrl"
+          :data-pswp-width="photo.viewerWidth"
+          :data-pswp-height="photo.viewerHeight"
         >
+          <img
+            :src="photo.viewerUrl"
+            :alt="photo.name"
+            class="max-h-[80vh] max-w-full object-contain"
+          >
+        </a>
       </div>
     </template>
   </div>
