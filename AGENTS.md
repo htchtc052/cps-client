@@ -1,4 +1,4 @@
-# CuratedPhotoSpace frontend agent
+# CuratedPhoto frontend agent
 
 - Work only in this repository and commit a complete frontend slice before handoff.
 - Treat the active Trello card as a read-only cross-layer contract; the architect owns its content and status.

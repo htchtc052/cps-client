@@ -1,6 +1,6 @@
-# CuratedPhotoSpace frontend
+# CuratedPhoto frontend
 
-Nuxt SSR frontend for CuratedPhotoSpace.
+Nuxt SSR frontend for CuratedPhoto.
 
 ## Local setup
 

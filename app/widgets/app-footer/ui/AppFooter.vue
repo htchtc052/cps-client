@@ -5,7 +5,7 @@ const year = new Date().getFullYear()
 <template>
   <UFooter class="border-t border-default">
     <template #left>
-      <span class="text-sm text-muted">&copy; {{ year }} CuratedPhotoSpace. All rights reserved.</span>
+      <span class="text-sm text-muted">&copy; {{ year }} CuratedPhoto. All rights reserved.</span>
     </template>
   </UFooter>
 </template>
