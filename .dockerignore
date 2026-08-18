@@ -1,0 +1,21 @@
+.git
+
+# Ставится внутри образа
+node_modules
+
+# Артефакты сборки — образ собирает свои
+.nuxt
+.output
+.nitro
+.data
+.cache
+dist
+
+# Секреты и локальное окружение
+.env
+.env.*
+!.env.example
+
+.codex
+.mcp.json
+*.log
