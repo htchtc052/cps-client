@@ -22,6 +22,12 @@ const year = new Date().getFullYear()
         >
           Privacy
         </NuxtLink>
+        <NuxtLink
+          to="/contact"
+          class="hover:text-default"
+        >
+          Contact
+        </NuxtLink>
       </div>
     </template>
   </UFooter>
