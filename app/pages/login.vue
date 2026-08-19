@@ -12,5 +12,21 @@ useHead({ title: 'Sign in' })
     </h1>
 
     <SignInForm />
+
+    <div class="space-y-1 text-sm text-muted">
+      <p>
+        <NuxtLink
+          to="/forgot-password"
+          class="underline"
+        >Forgot your password?</NuxtLink>
+      </p>
+      <p>
+        No account yet?
+        <NuxtLink
+          to="/register"
+          class="underline"
+        >Create one</NuxtLink>
+      </p>
+    </div>
   </div>
 </template>

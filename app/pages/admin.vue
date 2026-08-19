@@ -2,6 +2,7 @@
 import type { Account } from '~/entities/account'
 import { AdminAccountList, useAccountBlocking, useAdminAccounts } from '~/features/admin/accounts'
 import { useImpersonation } from '~/features/admin/impersonation'
+import { useRegistrationSwitch } from '~/features/admin/registration'
 
 definePageMeta({ layout: 'account', middleware: ['sanctum:auth'] })
 useHead({ title: 'Admin' })
@@ -13,13 +14,23 @@ if (!user.value?.isAdmin) throw createError({ statusCode: 404, fatal: true })
 const { data: accounts } = await useAdminAccounts()
 const { toggleBlocking, isBlocking } = useAccountBlocking(accounts)
 const { start, isStarting } = useImpersonation()
+const { status, toggle, isSaving } = useRegistrationSwitch()
 </script>
 
 <template>
   <div class="mx-auto max-w-2xl space-y-3">
-    <h1 class="text-lg font-semibold">
-      Accounts
-    </h1>
+    <div class="flex items-center justify-between">
+      <h1 class="text-lg font-semibold">
+        Accounts
+      </h1>
+
+      <USwitch
+        :model-value="status.registrationEnabled"
+        :disabled="isSaving"
+        label="Registration open"
+        @update:model-value="toggle"
+      />
+    </div>
 
     <AdminAccountList
       :accounts="accounts"
