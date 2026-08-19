@@ -27,9 +27,13 @@ async function onSubmit(e: FormSubmitEvent<ForgotPasswordDto>) {
       Check your inbox — a reset link is on its way.
     </p>
     <p>
-      The link expires in 60 minutes. If it does not arrive, please look in your
-      spam folder, and feel free to write to the project owner — we will reset
-      the password by hand.
+      The link expires in 60 minutes. If it does not arrive, please look in
+      your spam folder, or
+      <NuxtLink
+        to="/contact"
+        class="underline"
+      >write to the project owner</NuxtLink> — we will reset the password by
+      hand.
     </p>
   </div>
 

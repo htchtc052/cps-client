@@ -61,6 +61,14 @@ useHead({ title: 'Terms of Use' })
         from use of this service, including loss of uploaded files.
       </p>
 
+      <p>
+        To report content that breaks these rules, please
+        <NuxtLink
+          to="/contact"
+          class="underline"
+        >contact the project owner</NuxtLink>.
+      </p>
+
       <p class="pt-2">
         See also our <NuxtLink
           to="/privacy"

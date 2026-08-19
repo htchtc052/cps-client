@@ -64,8 +64,11 @@ useHead({ title: 'Privacy Policy' })
 
       <p>
         Deleted photos go to the trash and are removed permanently when you
-        empty it. To delete your account and everything in it, contact the
-        project owner.
+        empty it. To delete your account and everything in it,
+        <NuxtLink
+          to="/contact"
+          class="underline"
+        >contact the project owner</NuxtLink>.
       </p>
 
       <p class="pt-2">
