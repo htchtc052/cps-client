@@ -7,13 +7,9 @@ export function useAdminPhotosRequest() {
     return client<AdminPhoto[]>(`/api/admin/users/${userId}/photos`)
   }
 
-  function blockPhoto(photoId: number): Promise<AdminPhoto> {
-    return client<AdminPhoto>(`/api/admin/photos/${photoId}/block`, { method: 'POST' })
+  function deletePhoto(photoId: number): Promise<void> {
+    return client(`/api/admin/photos/${photoId}`, { method: 'DELETE' })
   }
 
-  function unblockPhoto(photoId: number): Promise<AdminPhoto> {
-    return client<AdminPhoto>(`/api/admin/photos/${photoId}/block`, { method: 'DELETE' })
-  }
-
-  return { getAccountPhotos, blockPhoto, unblockPhoto }
+  return { getAccountPhotos, deletePhoto }
 }

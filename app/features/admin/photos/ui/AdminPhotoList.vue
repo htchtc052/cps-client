@@ -3,11 +3,11 @@ import type { AdminPhoto } from '~/entities/admin'
 
 defineProps<{
   photos: AdminPhoto[]
-  isBlocking: boolean
+  isDeleting: boolean
 }>()
 
 const emit = defineEmits<{
-  'toggle-blocking': [AdminPhoto]
+  delete: [AdminPhoto]
 }>()
 </script>
 
@@ -45,20 +45,13 @@ const emit = defineEmits<{
         variant="subtle"
       />
 
-      <UBadge
-        v-if="photo.blockedAt"
-        label="Blocked"
+      <UButton
+        label="Delete"
         color="error"
         variant="subtle"
-      />
-
-      <UButton
-        :label="photo.blockedAt ? 'Unblock' : 'Block'"
-        :color="photo.blockedAt ? 'neutral' : 'error'"
-        variant="subtle"
         size="xs"
-        :disabled="isBlocking"
-        @click="emit('toggle-blocking', photo)"
+        :disabled="isDeleting"
+        @click="emit('delete', photo)"
       />
     </div>
   </div>

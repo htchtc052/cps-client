@@ -2,7 +2,7 @@
 import type { Account } from '~/entities/account'
 import type { AdminUser } from '~/entities/admin'
 import { AdminAccountList, useAccountBlocking, useAdminAccounts } from '~/features/admin/accounts'
-import { AdminPhotoList, useAdminPhotos, usePhotoBlocking } from '~/features/admin/photos'
+import { AdminPhotoList, useAdminPhotos, usePhotoDeletion } from '~/features/admin/photos'
 
 definePageMeta({ layout: 'account', middleware: ['sanctum:auth'] })
 useHead({ title: 'Admin' })
@@ -14,7 +14,7 @@ if (!user.value?.isAdmin) throw createError({ statusCode: 404, fatal: true })
 const { data: accounts } = await useAdminAccounts()
 const { toggleBlocking: toggleAccountBlocking, isBlocking: isBlockingAccount } = useAccountBlocking(accounts)
 const { photos, loadFor, isLoading: isLoadingPhotos } = useAdminPhotos()
-const { toggleBlocking: togglePhotoBlocking, isBlocking: isBlockingPhoto } = usePhotoBlocking(photos)
+const { remove: deletePhoto, isDeleting } = usePhotoDeletion(photos)
 
 const selected = ref<AdminUser | null>(null)
 
@@ -66,8 +66,8 @@ async function select(account: AdminUser): Promise<void> {
       <AdminPhotoList
         v-else
         :photos="photos"
-        :is-blocking="isBlockingPhoto"
-        @toggle-blocking="togglePhotoBlocking"
+        :is-deleting="isDeleting"
+        @delete="deletePhoto"
       />
     </section>
   </div>

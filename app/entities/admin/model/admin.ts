@@ -13,7 +13,6 @@ export type AdminPhoto = {
   name: string
   originalName: string
   shareToken: string | null
-  blockedAt: string | null
   createdAt: string
   previewUrl: string | null
 }

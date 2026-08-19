@@ -1,4 +1,4 @@
 export { useAdminPhotos } from './model/useAdminPhotos'
-export { usePhotoBlocking } from './model/usePhotoBlocking'
+export { usePhotoDeletion } from './model/usePhotoDeletion'
 
 export { default as AdminPhotoList } from './ui/AdminPhotoList.vue'
