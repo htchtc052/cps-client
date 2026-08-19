@@ -30,6 +30,16 @@ const user = useSanctumUser<Account>()
         class="hidden h-8 sm:block"
       />
 
+      <UButton
+        v-if="user?.isAdmin"
+        to="/admin"
+        label="Admin"
+        icon="i-lucide-shield"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+      />
+
       <SignOutButton />
     </template>
   </UHeader>
