@@ -1,1 +1,1 @@
-export type { AdminPhoto, AdminUser } from './model/admin'
+export type { AdminUser } from './model/admin'

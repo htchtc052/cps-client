@@ -56,10 +56,13 @@ async function openShareDialog(photo: AccountPhoto): Promise<void> {
   isShareDialogOpen.value = true
 }
 
-function handleCopyLink(): void {
+async function handleCopyLink(): Promise<void> {
   if (!shareDialogPhoto.value?.shareToken) return
 
-  copyLink(shareDialogPhoto.value.shareToken)
+  await copyLink(shareDialogPhoto.value.shareToken)
+
+  isShareDialogOpen.value = false
+  clear()
 }
 
 async function handleDeleteLink(): Promise<void> {

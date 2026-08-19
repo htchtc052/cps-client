@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { AppFooter } from '~/widgets/app-footer'
+import { ImpersonationBanner } from '~/features/admin/impersonation'
 import { AppHeader } from '~/widgets/app-header'
 </script>
 
 <template>
   <div class="flex min-h-screen flex-col bg-muted">
+    <ImpersonationBanner />
+
     <AppHeader />
 
     <main class="flex-1">

@@ -22,10 +22,12 @@ function openDialog(photo: AccountPhoto): void {
   isDialogOpen.value = true
 }
 
-function handleCopyLink(): void {
+async function handleCopyLink(): Promise<void> {
   if (!dialogPhoto.value?.shareToken) return
 
-  copyLink(dialogPhoto.value.shareToken)
+  await copyLink(dialogPhoto.value.shareToken)
+
+  isDialogOpen.value = false
 }
 
 async function handleDeleteLink(): Promise<void> {
@@ -62,6 +64,7 @@ async function handleDeleteLink(): Promise<void> {
     <UPageList
       v-else
       divide
+      class="max-w-2xl"
     >
       <div
         v-for="photo in photos"

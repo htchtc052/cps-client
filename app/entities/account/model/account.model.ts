@@ -3,4 +3,5 @@ export type Account = {
   name: string
   email: string
   isAdmin: boolean
+  isImpersonated: boolean
 }

@@ -7,12 +7,3 @@ export type AdminUser = {
   blockedAt: string | null
   createdAt: string
 }
-
-export type AdminPhoto = {
-  id: number
-  name: string
-  originalName: string
-  shareToken: string | null
-  createdAt: string
-  previewUrl: string | null
-}
