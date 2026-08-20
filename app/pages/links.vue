@@ -8,7 +8,7 @@ useHead({ title: 'Shared links' })
 
 const { data: photos, error } = await useSharedPhotos()
 
-const { shareUrl, copyLink, disableSharing, isDisablingSharing } = usePhotoSharing(photos, {
+const { shareUrls, copyText, disableSharing, isDisablingSharing } = usePhotoSharing(photos, {
   onDisabled: (photoId) => {
     photos.value = photos.value.filter(photo => photo.id !== photoId)
   },
@@ -22,10 +22,8 @@ function openDialog(photo: AccountPhoto): void {
   isDialogOpen.value = true
 }
 
-async function handleCopyLink(): Promise<void> {
-  if (!dialogPhoto.value?.shareToken) return
-
-  await copyLink(dialogPhoto.value.shareToken)
+async function handleCopy(text: string): Promise<void> {
+  await copyText(text)
 
   isDialogOpen.value = false
 }
@@ -104,9 +102,9 @@ async function handleDeleteLink(): Promise<void> {
     <PhotoShareDialog
       v-model:open="isDialogOpen"
       :photo-name="dialogPhoto?.name ?? ''"
-      :share-url="dialogPhoto?.shareToken ? shareUrl(dialogPhoto.shareToken) : ''"
+      :share-urls="dialogPhoto?.shareToken ? shareUrls(dialogPhoto.shareToken) : null"
       :is-deleting="isDisablingSharing"
-      @copy-link="handleCopyLink"
+      @copy="handleCopy"
       @delete-link="handleDeleteLink"
     />
   </div>

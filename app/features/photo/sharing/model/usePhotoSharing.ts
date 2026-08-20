@@ -2,6 +2,7 @@ import { useClipboard } from '@vueuse/core'
 import type { Ref } from 'vue'
 import type { AccountPhoto } from '~/entities/photo'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
+import type { ShareUrls } from '../contract/share-format.contract'
 import { usePhotoSharingRequest } from '../api/usePhotoSharingRequest'
 
 export type UsePhotoSharingOptions = {
@@ -11,6 +12,7 @@ export type UsePhotoSharingOptions = {
 export function usePhotoSharing(photos: Ref<AccountPhoto[]>, options: UsePhotoSharingOptions = {}) {
   const toast = useToast()
   const requestUrl = useRequestURL()
+  const apiBaseUrl = useSanctumConfig().baseUrl
   const { copy } = useClipboard({ legacy: true })
   const { enableSharing, disableSharing: disablePhotoSharing } = usePhotoSharingRequest()
   const enableOperation = useApiOperation(enableSharing)
@@ -18,6 +20,13 @@ export function usePhotoSharing(photos: Ref<AccountPhoto[]>, options: UsePhotoSh
 
   function shareUrl(shareToken: string): string {
     return `${requestUrl.origin}/p/${shareToken}`
+  }
+
+  function shareUrls(shareToken: string): ShareUrls {
+    return {
+      page: shareUrl(shareToken),
+      image: `${apiBaseUrl}/api/shared/photos/${shareToken}/viewer`,
+    }
   }
 
   async function share(photoId: number): Promise<AccountPhoto | null> {
@@ -32,10 +41,10 @@ export function usePhotoSharing(photos: Ref<AccountPhoto[]>, options: UsePhotoSh
     return response.data
   }
 
-  async function copyLink(shareToken: string): Promise<void> {
-    await copy(shareUrl(shareToken))
+  async function copyText(text: string): Promise<void> {
+    await copy(text)
 
-    toast.add({ title: 'Share link copied.', color: 'success' })
+    toast.add({ title: 'Copied to clipboard.', color: 'success' })
   }
 
   async function disableSharing(photoId: number): Promise<boolean> {
@@ -60,7 +69,8 @@ export function usePhotoSharing(photos: Ref<AccountPhoto[]>, options: UsePhotoSh
   return {
     share,
     shareUrl,
-    copyLink,
+    shareUrls,
+    copyText,
     disableSharing,
     isSharing: enableOperation.isLoading,
     isDisablingSharing: disableOperation.isLoading,

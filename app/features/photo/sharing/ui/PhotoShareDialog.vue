@@ -1,39 +1,61 @@
 <script setup lang="ts">
-defineProps<{
+import {
+  formatShare,
+  shareFormatLabels,
+  type ShareFormat,
+  type ShareUrls,
+} from '../contract/share-format.contract'
+
+const props = defineProps<{
   open: boolean
   photoName: string
-  shareUrl: string
+  shareUrls: ShareUrls | null
   isDeleting: boolean
 }>()
 
 const emit = defineEmits<{
   'update:open': [boolean]
-  'copy-link': []
+  'copy': [string]
   'delete-link': []
 }>()
+
+const format = ref<ShareFormat>('link')
+
+const formatItems = Object.entries(shareFormatLabels).map(([value, label]) => ({ value, label }))
+
+const value = computed(() =>
+  props.shareUrls === null ? '' : formatShare(format.value, props.shareUrls, props.photoName),
+)
 </script>
 
 <template>
   <UModal
     :open="open"
     :title="photoName"
-    @update:open="value => emit('update:open', value)"
+    @update:open="emit('update:open', $event)"
   >
     <template #body>
-      <UFormField label="Public link">
+      <div class="space-y-3">
+        <UTabs
+          v-model="format"
+          :items="formatItems"
+          size="sm"
+        />
+
         <UInput
-          :model-value="shareUrl"
+          :model-value="value"
           readonly
           class="w-full"
+          @focus="($event.target as HTMLInputElement).select()"
         />
-      </UFormField>
+      </div>
     </template>
 
     <template #footer>
       <UButton
-        label="Copy link"
+        label="Copy"
         icon="i-lucide-copy"
-        @click="emit('copy-link')"
+        @click="emit('copy', value)"
       />
 
       <UButton

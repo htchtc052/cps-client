@@ -30,7 +30,7 @@ usePhotoSwipeGallery(galleryElement)
 
 const { count, ids, isSelectionMode, isSelected, toggle, clear } = usePhotoSelection()
 const { moveToTrash, isMoving } = useMoveToTrash(photos, clear)
-const { share, shareUrl, copyLink, disableSharing, isSharing, isDisablingSharing } = usePhotoSharing(photos)
+const { share, shareUrls, copyText, disableSharing, isSharing, isDisablingSharing } = usePhotoSharing(photos)
 
 const singleSelectedPhoto = computed<AccountPhoto | null>(() => {
   if (count.value !== 1) return null
@@ -56,10 +56,8 @@ async function openShareDialog(photo: AccountPhoto): Promise<void> {
   isShareDialogOpen.value = true
 }
 
-async function handleCopyLink(): Promise<void> {
-  if (!shareDialogPhoto.value?.shareToken) return
-
-  await copyLink(shareDialogPhoto.value.shareToken)
+async function handleCopy(text: string): Promise<void> {
+  await copyText(text)
 
   isShareDialogOpen.value = false
   clear()
@@ -209,9 +207,9 @@ function showAllPhotos() {
     <PhotoShareDialog
       v-model:open="isShareDialogOpen"
       :photo-name="shareDialogPhoto?.name ?? ''"
-      :share-url="shareDialogPhoto?.shareToken ? shareUrl(shareDialogPhoto.shareToken) : ''"
+      :share-urls="shareDialogPhoto?.shareToken ? shareUrls(shareDialogPhoto.shareToken) : null"
       :is-deleting="isDisablingSharing"
-      @copy-link="handleCopyLink"
+      @copy="handleCopy"
       @delete-link="handleDeleteLink"
     />
   </div>
