@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { MAX_STAGED_PHOTOS, photoStagingSchema, type PhotoStagingDto } from '../contract/photo-staging.contract'
-import { usePhotoUpload, type PhotoUploadFailureView, type StagedPhotoState } from '../model/usePhotoUpload'
+import { usePhotoUpload, type PhotoUploadFailureView } from '../model/usePhotoUpload'
+import { useStagedPreviews } from '../model/useStagedPreviews'
 
 const toast = useToast()
 
@@ -11,15 +12,9 @@ const state = reactive<PhotoStagingDto>({
 
 const failures = ref<PhotoUploadFailureView[]>([])
 
-const { uploadPhotos, stagedStates, phase, isBusy, completed, total, previewPending, previewTotal } = usePhotoUpload()
+const { previewUrl } = useStagedPreviews(toRef(state, 'photos'))
 
-const stateBadges: Record<StagedPhotoState, { icon: string, color: 'neutral' | 'primary' | 'success' | 'error', label: string }> = {
-  waiting: { icon: 'i-lucide-clock', color: 'neutral', label: 'Waiting' },
-  uploading: { icon: 'i-lucide-loader-circle', color: 'primary', label: 'Uploading' },
-  processing: { icon: 'i-lucide-loader-circle', color: 'primary', label: 'Processing' },
-  ready: { icon: 'i-lucide-check', color: 'success', label: 'Ready' },
-  failed: { icon: 'i-lucide-triangle-alert', color: 'error', label: 'Failed' },
-}
+const { uploadPhotos, stagedStates, phase, isBusy, completed, total, previewPending, previewTotal } = usePhotoUpload()
 
 const uploadLabel = computed(() => {
   if (phase.value === 'uploading') return `Uploading ${completed.value} of ${total.value}`
@@ -70,13 +65,12 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
     <UFormField
       name="photos"
       label="Photos"
-      description="JPEG, PNG or WebP. 15MB max. Up to 50 photos per upload."
+      :description="`JPEG, PNG or WebP. 15MB max. Up to ${MAX_STAGED_PHOTOS} photos per upload.`"
     >
       <UFileUpload
         :model-value="state.photos"
         multiple
         accept=".jpg,.jpeg,.png,.webp"
-        layout="grid"
         icon="i-lucide-image"
         label="Drop your photos here"
         description="Add photos in as many goes as you like, then upload them together."
@@ -97,15 +91,60 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
           />
         </template>
 
-        <template #file-trailing="{ file }">
-          <UBadge
-            v-if="stagedStates.get(file)"
-            :icon="stateBadges[stagedStates.get(file)!].icon"
-            :color="stateBadges[stagedStates.get(file)!].color"
-            :label="stateBadges[stagedStates.get(file)!].label"
-            variant="subtle"
-            size="sm"
-          />
+
+        <template #files="{ removeFile }">
+          <UScrollArea
+            v-slot="{ item, index }"
+            :items="state.photos"
+            :virtualize="{ lanes: 4, gap: 12, estimateSize: 132, overscan: 8 }"
+            class="h-96 w-full"
+          >
+            <div class="relative rounded-md ring ring-default">
+              <img
+                :src="previewUrl(item)"
+                :alt="item.name"
+                class="h-28 w-full rounded-md object-cover"
+              >
+
+              <UButton
+                v-if="!isBusy"
+                icon="i-lucide-x"
+                color="neutral"
+                variant="solid"
+                size="xs"
+                class="absolute top-1 right-1"
+                :aria-label="`Remove ${item.name}`"
+                @click="removeFile(index)"
+              />
+
+              <UBadge
+                v-if="stagedStates.get(item) === 'ready'"
+                label="Ready"
+                color="success"
+                variant="solid"
+                size="sm"
+                class="absolute bottom-1 left-1"
+              />
+
+              <UBadge
+                v-else-if="stagedStates.get(item) === 'failed'"
+                label="Failed"
+                color="error"
+                variant="solid"
+                size="sm"
+                class="absolute bottom-1 left-1"
+              />
+
+              <UBadge
+                v-else-if="stagedStates.get(item) === 'processing'"
+                label="Processing"
+                color="neutral"
+                variant="solid"
+                size="sm"
+                class="absolute bottom-1 left-1"
+              />
+            </div>
+          </UScrollArea>
         </template>
 
         <template #files-top="{ files, open, removeFile }">

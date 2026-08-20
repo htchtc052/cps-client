@@ -9,7 +9,7 @@ const GENERIC_FAILURE = 'Upload failed. Try again.'
 
 export type PhotoUploadPhase = 'idle' | 'uploading' | 'finishing'
 
-export type StagedPhotoState = 'waiting' | 'uploading' | 'processing' | 'ready' | 'failed'
+export type StagedPhotoState = 'waiting' | 'processing' | 'ready' | 'failed'
 
 export type PhotoUploadFailureView = {
   file: File
