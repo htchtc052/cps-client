@@ -30,6 +30,7 @@ describe('uploadPhotosSequentially', () => {
     const pending = [deferred(), deferred(), deferred()]
     const started: string[] = []
     const progress: number[] = []
+    const reported: Array<{ file: string, photoId: number | null }> = []
     const files = [file('a.jpg'), file('b.jpg'), file('c.jpg')]
     const rejection = new Error('upload failed')
 
@@ -40,7 +41,10 @@ describe('uploadPhotosSequentially', () => {
 
         return pending[started.length - 1]!.promise
       },
-      completed => progress.push(completed),
+      (completed, uploaded, photo) => {
+        progress.push(completed)
+        reported.push({ file: uploaded.name, photoId: photo?.id ?? null })
+      },
     )
 
     await Promise.resolve()
@@ -62,7 +66,15 @@ describe('uploadPhotosSequentially', () => {
 
     const result = await outcome
     expect(result.attempted).toBe(3)
-    expect(result.succeeded).toEqual([{ id: 1 }, { id: 3 }])
+    expect(result.succeeded).toEqual([
+      { file: files[0], photo: { id: 1 } },
+      { file: files[2], photo: { id: 3 } },
+    ])
+    expect(reported).toEqual([
+      { file: 'a.jpg', photoId: 1 },
+      { file: 'b.jpg', photoId: null },
+      { file: 'c.jpg', photoId: 3 },
+    ])
     expect(result.failures).toHaveLength(1)
     expect(result.failures[0]!.file).toBe(files[1])
     expect(result.failures[0]!.error).toBe(rejection)

@@ -18,7 +18,7 @@ describe('waitForPreviews', () => {
       [{ photoId: 2, status: 'failed' }],
     ]
     const requested: number[][] = []
-    const progress: Array<{ pending: number, total: number }> = []
+    const settledBatches: PhotoPreviewStatus[][] = []
     const settled = vi.fn()
 
     void waitForPreviews(
@@ -28,24 +28,26 @@ describe('waitForPreviews', () => {
 
         return responses[requested.length - 1]!
       },
-      (pending, total) => {
-        progress.push({ pending, total })
-      },
+      batch => settledBatches.push(batch),
     ).then(settled)
 
     await vi.advanceTimersByTimeAsync(0)
     expect(requested).toEqual([[1, 2]])
-    expect(progress).toEqual([{ pending: 2, total: 2 }])
+    expect(settledBatches).toEqual([[]])
     expect(settled).not.toHaveBeenCalled()
 
     await vi.advanceTimersByTimeAsync(1000)
     expect(requested).toEqual([[1, 2], [1, 2]])
-    expect(progress).toEqual([{ pending: 2, total: 2 }, { pending: 1, total: 2 }])
+    expect(settledBatches).toEqual([[], [{ photoId: 1, status: 'ready' }]])
     expect(settled).not.toHaveBeenCalled()
 
     await vi.advanceTimersByTimeAsync(1000)
     expect(requested).toEqual([[1, 2], [1, 2], [2]])
-    expect(progress).toEqual([{ pending: 2, total: 2 }, { pending: 1, total: 2 }, { pending: 0, total: 2 }])
+    expect(settledBatches).toEqual([
+      [],
+      [{ photoId: 1, status: 'ready' }],
+      [{ photoId: 2, status: 'failed' }],
+    ])
     expect(settled).toHaveBeenCalledOnce()
   })
 })

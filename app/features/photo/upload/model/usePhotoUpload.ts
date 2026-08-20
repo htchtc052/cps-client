@@ -9,6 +9,8 @@ const GENERIC_FAILURE = 'Upload failed. Try again.'
 
 export type PhotoUploadPhase = 'idle' | 'uploading' | 'finishing'
 
+export type StagedPhotoState = 'waiting' | 'uploading' | 'processing' | 'ready' | 'failed'
+
 export type PhotoUploadFailureView = {
   file: File
   message: string
@@ -46,6 +48,12 @@ export function usePhotoUpload() {
   const total = ref(0)
   const previewPending = ref(0)
   const previewTotal = ref(0)
+  const stagedStates = ref(new Map<File, StagedPhotoState>())
+  const photoFiles = new Map<number, File>()
+
+  function setStagedState(file: File, state: StagedPhotoState): void {
+    stagedStates.value = new Map(stagedStates.value).set(file, state)
+  }
 
   async function settlePreviews(photoIds: number[]): Promise<void> {
     if (photoIds.length === 0) return
@@ -54,8 +62,14 @@ export function usePhotoUpload() {
     previewTotal.value = photoIds.length
 
     try {
-      await waitForPreviews(photoIds, getPreviewStatuses, (pending) => {
-        previewPending.value = pending
+      await waitForPreviews(photoIds, getPreviewStatuses, (settled) => {
+        for (const status of settled) {
+          const file = photoFiles.get(status.photoId)
+
+          if (file) setStagedState(file, status.status === 'ready' ? 'ready' : 'failed')
+        }
+
+        previewPending.value -= settled.length
       })
     }
     catch (error: unknown) {
@@ -71,14 +85,25 @@ export function usePhotoUpload() {
     total.value = staged.length
     previewPending.value = 0
     previewTotal.value = 0
+    photoFiles.clear()
+    stagedStates.value = new Map(staged.map(file => [file, 'waiting' as StagedPhotoState]))
 
     try {
-      const outcome = await uploadPhotosSequentially(staged, uploadPhoto, (done) => {
+      const outcome = await uploadPhotosSequentially(staged, uploadPhoto, (done, file, photo) => {
         completed.value = done
+
+        if (photo === null) {
+          setStagedState(file, 'failed')
+
+          return
+        }
+
+        photoFiles.set(photo.id, file)
+        setStagedState(file, photo.created ? 'processing' : 'ready')
       })
 
-      const createdPhotos = outcome.succeeded.filter(photo => photo.created)
-      const duplicatePhotos = outcome.succeeded.filter(photo => !photo.created)
+      const createdPhotos = outcome.succeeded.map(({ photo }) => photo).filter(photo => photo.created)
+      const duplicatePhotos = outcome.succeeded.map(({ photo }) => photo).filter(photo => !photo.created)
 
       phase.value = 'finishing'
       await settlePreviews(createdPhotos.map(photo => photo.id))
@@ -125,6 +150,7 @@ export function usePhotoUpload() {
 
   return {
     uploadPhotos,
+    stagedStates,
     phase,
     isBusy,
     completed,

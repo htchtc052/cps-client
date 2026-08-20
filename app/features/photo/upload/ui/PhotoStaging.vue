@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { MAX_STAGED_PHOTOS, photoStagingSchema, type PhotoStagingDto } from '../contract/photo-staging.contract'
-import { usePhotoUpload, type PhotoUploadFailureView } from '../model/usePhotoUpload'
+import { usePhotoUpload, type PhotoUploadFailureView, type StagedPhotoState } from '../model/usePhotoUpload'
 
 const toast = useToast()
 
@@ -11,7 +11,15 @@ const state = reactive<PhotoStagingDto>({
 
 const failures = ref<PhotoUploadFailureView[]>([])
 
-const { uploadPhotos, phase, isBusy, completed, total, previewPending, previewTotal } = usePhotoUpload()
+const { uploadPhotos, stagedStates, phase, isBusy, completed, total, previewPending, previewTotal } = usePhotoUpload()
+
+const stateBadges: Record<StagedPhotoState, { icon: string, color: 'neutral' | 'primary' | 'success' | 'error', label: string }> = {
+  waiting: { icon: 'i-lucide-clock', color: 'neutral', label: 'Waiting' },
+  uploading: { icon: 'i-lucide-loader-circle', color: 'primary', label: 'Uploading' },
+  processing: { icon: 'i-lucide-loader-circle', color: 'primary', label: 'Processing' },
+  ready: { icon: 'i-lucide-check', color: 'success', label: 'Ready' },
+  failed: { icon: 'i-lucide-triangle-alert', color: 'error', label: 'Failed' },
+}
 
 const uploadLabel = computed(() => {
   if (phase.value === 'uploading') return `Uploading ${completed.value} of ${total.value}`
@@ -86,6 +94,17 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
             variant="outline"
             :disabled="isBusy"
             @click.stop="open()"
+          />
+        </template>
+
+        <template #file-trailing="{ file }">
+          <UBadge
+            v-if="stagedStates.get(file)"
+            :icon="stateBadges[stagedStates.get(file)!].icon"
+            :color="stateBadges[stagedStates.get(file)!].color"
+            :label="stateBadges[stagedStates.get(file)!].label"
+            variant="subtle"
+            size="sm"
           />
         </template>
 
