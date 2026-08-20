@@ -1,6 +1,7 @@
 export type Photo = {
   id: number
   name: string
+  description: string | null
   width: number
   height: number
   previewUrl: string | null

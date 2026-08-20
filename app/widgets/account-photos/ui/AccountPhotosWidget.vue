@@ -2,6 +2,7 @@
 import type { AccountPhoto } from '~/entities/photo'
 import { PhotoGrid } from '~/entities/photo'
 import { SelectablePhotoCard, usePhotoSelection } from '~/features/photo/photo-selection'
+import { PhotoDetailsDialog, usePhotoDetails } from '~/features/photo/details'
 import { PhotoShareDialog, usePhotoSharing } from '~/features/photo/sharing'
 import { useMoveToTrash } from '~/features/photo/trash'
 import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
@@ -37,6 +38,24 @@ const singleSelectedPhoto = computed<AccountPhoto | null>(() => {
 
   return photos.value.find(photo => photo.id === ids.value[0]) ?? null
 })
+
+const { save: savePhotoDetails, isSaving: isSavingDetails } = usePhotoDetails(photos)
+
+const detailsPhoto = ref<AccountPhoto | null>(null)
+const isDetailsDialogOpen = ref(false)
+
+function openDetailsDialog(photo: AccountPhoto): void {
+  detailsPhoto.value = photo
+  isDetailsDialogOpen.value = true
+}
+
+async function handleSaveDetails(data: { name: string, description: string }): Promise<void> {
+  if (!detailsPhoto.value) return
+
+  const errors = await savePhotoDetails(detailsPhoto.value.id, data)
+
+  if (!errors) isDetailsDialogOpen.value = false
+}
 
 const shareDialogPhoto = ref<AccountPhoto | null>(null)
 const isShareDialogOpen = ref(false)
@@ -198,11 +217,19 @@ function showAllPhotos() {
           :actions-disabled="isSharing || isDisablingSharing || isMoving"
           @toggle="toggle(photo.id)"
           @share="openShareDialog(photo)"
+          @edit-details="openDetailsDialog(photo)"
           @manage-share="openShareDialog(photo)"
           @move-to-trash="moveToTrash([photo.id])"
         />
       </PhotoGrid>
     </div>
+
+    <PhotoDetailsDialog
+      v-model:open="isDetailsDialogOpen"
+      :photo="detailsPhoto"
+      :is-saving="isSavingDetails"
+      @save="handleSaveDetails"
+    />
 
     <PhotoShareDialog
       v-model:open="isShareDialogOpen"

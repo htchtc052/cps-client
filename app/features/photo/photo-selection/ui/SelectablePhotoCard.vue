@@ -11,6 +11,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   toggle: []
   share: []
+  'edit-details': []
   'manage-share': []
   'move-to-trash': []
 }>()
@@ -27,6 +28,13 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
         ],
       ]
     : []),
+  [
+    {
+      label: 'Edit details',
+      icon: 'i-lucide-pencil',
+      onSelect: () => emit('edit-details'),
+    },
+  ],
   [
     {
       label: 'Move to trash',
