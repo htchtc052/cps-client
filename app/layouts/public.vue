@@ -6,6 +6,7 @@ import { AppFooter } from '~/widgets/app-footer'
 <template>
   <div class="flex min-h-screen flex-col bg-muted">
     <UHeader
+      title="CuratedPhoto"
       :toggle="false"
       :ui="{ root: 'bg-default backdrop-blur-none' }"
     >

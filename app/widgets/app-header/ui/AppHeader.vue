@@ -9,6 +9,7 @@ const user = useSanctumUser<Account>()
 <template>
   <UHeader
     to="/owner"
+    title="CuratedPhoto"
     :toggle="false"
     :ui="{ root: 'bg-default backdrop-blur-none', right: 'gap-4' }"
   >

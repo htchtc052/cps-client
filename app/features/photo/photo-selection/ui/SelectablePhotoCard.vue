@@ -17,17 +17,19 @@ const emit = defineEmits<{
 }>()
 
 const menuItems = computed<DropdownMenuItem[][]>(() => [
-  ...(props.photo.shareToken === null
-    ? [
-        [
-          {
-            label: 'Share photo',
-            icon: 'i-lucide-link',
-            onSelect: () => emit('share'),
-          },
-        ],
-      ]
-    : []),
+  [
+    props.photo.shareToken === null
+      ? {
+          label: 'Share photo',
+          icon: 'i-lucide-link',
+          onSelect: () => emit('share'),
+        }
+      : {
+          label: 'Manage link',
+          icon: 'i-lucide-link',
+          onSelect: () => emit('manage-share'),
+        },
+  ],
   [
     {
       label: 'Edit details',
@@ -69,17 +71,5 @@ const menuItems = computed<DropdownMenuItem[][]>(() => [
         class="absolute top-2 right-2 bg-black/40 text-white hover:bg-black/60 focus-visible:bg-black/60"
       />
     </UDropdownMenu>
-
-    <UButton
-      v-if="photo.shareToken !== null"
-      icon="i-lucide-link"
-      color="neutral"
-      variant="ghost"
-      size="xs"
-      :aria-label="`Manage share link for ${photo.name}`"
-      :disabled="actionsDisabled"
-      class="absolute bottom-2 right-2 bg-black/40 text-white hover:bg-black/60 focus-visible:bg-black/60"
-      @click.stop="emit('manage-share')"
-    />
   </div>
 </template>
