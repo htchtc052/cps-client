@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { AccountAlbum } from '~/entities/album'
 import type { AccountPhoto } from '~/entities/photo'
 import { PhotoGrid } from '~/entities/photo'
+import { AlbumShareDialog, useAlbumSharing } from '~/features/album/sharing'
 import { SelectablePhotoCard, usePhotoSelection } from '~/features/photo/photo-selection'
 import { PhotoDetailsDialog, usePhotoDetails } from '~/features/photo/details'
 import { PhotoShareDialog, usePhotoSharing } from '~/features/photo/sharing'
@@ -38,6 +40,44 @@ const singleSelectedPhoto = computed<AccountPhoto | null>(() => {
 
   return photos.value.find(photo => photo.id === ids.value[0]) ?? null
 })
+
+const isMultiSelection = computed(() => count.value >= 2)
+
+const {
+  createAlbum,
+  albumUrl,
+  copyText: copyAlbumText,
+  deleteAlbum,
+  isCreating: isCreatingAlbum,
+  isDeleting: isDeletingAlbum,
+} = useAlbumSharing()
+
+const albumDialogAlbum = ref<AccountAlbum | null>(null)
+const isAlbumDialogOpen = ref(false)
+
+async function shareSelectedPhotos(): Promise<void> {
+  const created = await createAlbum(ids.value)
+
+  if (!created) return
+
+  clear()
+  albumDialogAlbum.value = created
+  isAlbumDialogOpen.value = true
+}
+
+async function handleAlbumCopy(text: string): Promise<void> {
+  await copyAlbumText(text)
+
+  isAlbumDialogOpen.value = false
+}
+
+async function handleAlbumDeleteLink(): Promise<void> {
+  if (!albumDialogAlbum.value) return
+
+  const succeeded = await deleteAlbum(albumDialogAlbum.value.id)
+
+  if (succeeded) isAlbumDialogOpen.value = false
+}
 
 const { save: savePhotoDetails, isSaving: isSavingDetails } = usePhotoDetails(photos)
 
@@ -130,8 +170,20 @@ function showAllPhotos() {
             color="neutral"
             variant="ghost"
             size="sm"
-            :disabled="isSharing || isDisablingSharing || isMoving"
+            :disabled="isSharing || isDisablingSharing || isMoving || isCreatingAlbum || isDeletingAlbum"
             @click="openShareDialog(singleSelectedPhoto)"
+          />
+
+          <UButton
+            v-else-if="isMultiSelection"
+            label="Share photos"
+            icon="i-lucide-link"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            :loading="isCreatingAlbum"
+            :disabled="isSharing || isDisablingSharing || isMoving || isCreatingAlbum || isDeletingAlbum"
+            @click="shareSelectedPhotos"
           />
 
           <UButton
@@ -140,7 +192,7 @@ function showAllPhotos() {
             color="error"
             size="sm"
             :loading="isMoving"
-            :disabled="isMoving"
+            :disabled="isMoving || isCreatingAlbum || isDeletingAlbum"
             @click="moveToTrash(ids)"
           />
 
@@ -238,6 +290,15 @@ function showAllPhotos() {
       :is-deleting="isDisablingSharing"
       @copy="handleCopy"
       @delete-link="handleDeleteLink"
+    />
+
+    <AlbumShareDialog
+      v-model:open="isAlbumDialogOpen"
+      :photos-count="albumDialogAlbum?.photosCount ?? 0"
+      :share-url="albumDialogAlbum ? albumUrl(albumDialogAlbum.shareToken) : null"
+      :is-deleting="isDeletingAlbum"
+      @copy="handleAlbumCopy"
+      @delete-link="handleAlbumDeleteLink"
     />
   </div>
 </template>
