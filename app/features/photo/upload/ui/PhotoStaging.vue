@@ -18,7 +18,7 @@ const { uploadPhotos, stagedStates, phase, isBusy, completed, total, previewPend
 
 const uploadLabel = computed(() => {
   if (phase.value === 'uploading') return `Uploading ${completed.value} of ${total.value}`
-  if (phase.value === 'finishing') return `Processing ${previewPending.value} of ${previewTotal.value} previews`
+  if (phase.value === 'finishing') return `Processing ${previewTotal.value - previewPending.value} of ${previewTotal.value} previews`
 
   return 'Upload'
 })
@@ -78,6 +78,7 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
         :interactive="false"
         :disabled="isBusy"
         :file-delete="!isBusy"
+        :ui="{ files: 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 w-full' }"
         @update:model-value="onStagingChange"
       >
         <template #actions="{ open }">
@@ -91,60 +92,56 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
           />
         </template>
 
-
         <template #files="{ removeFile }">
-          <UScrollArea
-            v-slot="{ item, index }"
-            :items="state.photos"
-            :virtualize="{ lanes: 4, gap: 12, estimateSize: 132, overscan: 8 }"
-            class="h-96 w-full"
+          <div
+            v-for="(photo, index) in state.photos"
+            :key="`${photo.name}-${photo.lastModified}-${photo.size}`"
+            class="relative aspect-square overflow-hidden rounded-md ring ring-default"
           >
-            <div class="relative rounded-md ring ring-default">
-              <img
-                :src="previewUrl(item)"
-                :alt="item.name"
-                class="h-28 w-full rounded-md object-cover"
-              >
+            <img
+              :src="previewUrl(photo)"
+              :alt="photo.name"
+              class="h-full w-full object-cover"
+            >
 
-              <UButton
-                v-if="!isBusy"
-                icon="i-lucide-x"
-                color="neutral"
-                variant="solid"
-                size="xs"
-                class="absolute top-1 right-1"
-                :aria-label="`Remove ${item.name}`"
-                @click="removeFile(index)"
-              />
+            <UButton
+              v-if="!isBusy"
+              icon="i-lucide-x"
+              color="neutral"
+              variant="solid"
+              size="xs"
+              class="absolute top-1 right-1"
+              :aria-label="`Remove ${photo.name}`"
+              @click="removeFile(index)"
+            />
 
-              <UBadge
-                v-if="stagedStates.get(item) === 'ready'"
-                label="Ready"
-                color="success"
-                variant="solid"
-                size="sm"
-                class="absolute bottom-1 left-1"
-              />
+            <UBadge
+              v-if="stagedStates.get(photo) === 'ready'"
+              label="Ready"
+              color="success"
+              variant="solid"
+              size="sm"
+              class="absolute bottom-1 left-1"
+            />
 
-              <UBadge
-                v-else-if="stagedStates.get(item) === 'failed'"
-                label="Failed"
-                color="error"
-                variant="solid"
-                size="sm"
-                class="absolute bottom-1 left-1"
-              />
+            <UBadge
+              v-else-if="stagedStates.get(photo) === 'failed'"
+              label="Failed"
+              color="error"
+              variant="solid"
+              size="sm"
+              class="absolute bottom-1 left-1"
+            />
 
-              <UBadge
-                v-else-if="stagedStates.get(item) === 'processing'"
-                label="Processing"
-                color="neutral"
-                variant="solid"
-                size="sm"
-                class="absolute bottom-1 left-1"
-              />
-            </div>
-          </UScrollArea>
+            <UBadge
+              v-else-if="stagedStates.get(photo) === 'processing'"
+              label="Processing"
+              color="neutral"
+              variant="solid"
+              size="sm"
+              class="absolute bottom-1 left-1"
+            />
+          </div>
         </template>
 
         <template #files-top="{ files, open, removeFile }">
