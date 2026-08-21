@@ -6,4 +6,5 @@ export type SharedAlbum = {
 export type AccountAlbum = SharedAlbum & {
   id: number
   shareToken: string
+  coverPreviewUrl: string | null
 }

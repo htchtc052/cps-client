@@ -6,7 +6,7 @@ import { PhotoShareDialog, useSharedPhotos, usePhotoSharing } from '~/features/p
 import { PhotoLibraryNavigation } from '~/widgets/photo-library-navigation'
 
 definePageMeta({ layout: 'account', middleware: ['sanctum:auth'] })
-useHead({ title: 'Shared links' })
+useHead({ title: 'Shared' })
 
 const tabItems = [
   { label: 'Photos', slot: 'photos' as const },
@@ -81,7 +81,7 @@ function formatCreatedAt(value: string): string {
 
 <template>
   <div>
-    <UPageHeader title="Shared links" />
+    <UPageHeader title="Shared" />
 
     <div class="z-10 flex flex-wrap items-center gap-3 bg-muted py-4 sm:sticky sm:top-(--ui-header-height)">
       <PhotoLibraryNavigation />
@@ -172,22 +172,39 @@ function formatCreatedAt(value: string): string {
             :key="album.id"
             class="flex items-center gap-3 py-3"
           >
-            <div class="flex size-12 shrink-0 items-center justify-center rounded-md bg-elevated">
-              <UIcon
-                name="i-lucide-images"
-                class="size-5 text-dimmed"
-              />
-            </div>
+            <a
+              :href="`/a/${album.shareToken}`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex min-w-0 flex-1 items-center gap-3"
+            >
+              <img
+                v-if="album.coverPreviewUrl"
+                :src="album.coverPreviewUrl"
+                :alt="`Album with ${album.photosCount} photos`"
+                class="size-12 shrink-0 rounded-md object-cover"
+              >
 
-            <div class="min-w-0 flex-1">
-              <p class="truncate text-sm">
-                {{ album.photosCount === 1 ? '1 photo' : `${album.photosCount} photos` }}
-              </p>
+              <div
+                v-else
+                class="flex size-12 shrink-0 items-center justify-center rounded-md bg-elevated"
+              >
+                <UIcon
+                  name="i-lucide-images"
+                  class="size-5 text-dimmed"
+                />
+              </div>
 
-              <p class="truncate text-xs text-muted">
-                {{ formatCreatedAt(album.createdAt) }}
-              </p>
-            </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm">
+                  {{ album.photosCount === 1 ? '1 photo' : `${album.photosCount} photos` }}
+                </p>
+
+                <p class="truncate text-xs text-muted">
+                  {{ formatCreatedAt(album.createdAt) }}
+                </p>
+              </div>
+            </a>
 
             <UButton
               icon="i-lucide-link"
