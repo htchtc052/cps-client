@@ -26,12 +26,9 @@ const features = [
 ]
 
 const albumPreviewImages = [
-  '/landing/mountains.svg',
-  '/landing/dusk.svg',
-  '/landing/pines.svg',
-  '/landing/dunes.svg',
-  '/landing/harbour.svg',
-  '/landing/lake.svg',
+  '/landing/river-sunset.webp',
+  '/landing/harbour.webp',
+  '/landing/lake-sunset.webp',
 ]
 
 const authModal = ref<'sign-in' | 'sign-up' | null>(null)
@@ -191,8 +188,25 @@ const ctaLinks = [
       @update:open="(value) => { if (!value) closeAuthModal() }"
     >
       <template #body>
+        <div
+          v-if="registrationStatusState === 'idle' || registrationStatusState === 'pending'"
+          class="flex justify-center py-8"
+        >
+          <UIcon
+            name="i-lucide-loader-2"
+            class="size-6 animate-spin text-dimmed"
+          />
+        </div>
+
         <UAlert
-          v-if="!registrationStatus.registrationEnabled"
+          v-else-if="registrationStatusState === 'error'"
+          icon="i-lucide-triangle-alert"
+          title="Registration status unavailable"
+          description="Open the registration page and try again."
+        />
+
+        <UAlert
+          v-else-if="!registrationStatus.registrationEnabled"
           icon="i-lucide-lock"
           title="Registration is closed"
           description="New accounts are not accepted at the moment."
