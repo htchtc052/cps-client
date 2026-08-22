@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="dusk-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bfdbfe" />
+      <stop offset="60%" stop-color="#fde68a" />
+      <stop offset="100%" stop-color="#fcd34d" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#dusk-sky)" />
+  <circle cx="200" cy="190" r="46" fill="#fbbf24" />
+  <rect y="190" width="400" height="110" fill="#60a5fa" opacity="0.55" />
+  <rect y="190" width="400" height="4" fill="#3b82f6" opacity="0.4" />
+</svg>

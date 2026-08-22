@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="harbour-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dbeafe" />
+      <stop offset="100%" stop-color="#eff6ff" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#harbour-sky)" />
+  <rect y="200" width="400" height="100" fill="#93c5fd" />
+  <rect x="180" y="150" width="8" height="60" fill="#64748b" />
+  <polygon points="188,155 188,190 240,185" fill="#3b82f6" opacity="0.7" />
+  <rect x="70" y="180" width="8" height="40" fill="#64748b" />
+  <polygon points="78,183 78,205 110,200" fill="#60a5fa" opacity="0.7" />
+  <rect y="195" width="400" height="6" fill="#475569" opacity="0.4" />
+</svg>
