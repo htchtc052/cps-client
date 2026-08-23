@@ -31,17 +31,9 @@ const galleryElement = ref<HTMLElement | null>(null)
 
 usePhotoSwipeGallery(galleryElement)
 
-const { count, ids, isSelectionMode, isSelected, toggle, clear } = usePhotoSelection()
+const { count, ids, isSelectionMode, selectedPhoto, hasMultiple, isSelected, toggle, clear } = usePhotoSelection(photos)
 const { moveToTrash, isMoving } = useMoveToTrash(photos, clear)
 const { share, shareUrls, copyText, disableSharing, isSharing, isDisablingSharing } = usePhotoSharing(photos)
-
-const singleSelectedPhoto = computed<AccountPhoto | null>(() => {
-  if (count.value !== 1) return null
-
-  return photos.value.find(photo => photo.id === ids.value[0]) ?? null
-})
-
-const isMultiSelection = computed(() => count.value >= 2)
 
 const {
   createAlbum,
@@ -164,18 +156,18 @@ function showAllPhotos() {
 
         <div class="flex flex-wrap items-center gap-2">
           <UButton
-            v-if="singleSelectedPhoto"
-            :label="singleSelectedPhoto.shareToken === null ? 'Share photo' : 'Manage link'"
+            v-if="selectedPhoto"
+            :label="selectedPhoto.shareToken === null ? 'Share photo' : 'Manage link'"
             icon="i-lucide-link"
             color="neutral"
             variant="ghost"
             size="sm"
             :disabled="isSharing || isDisablingSharing || isMoving || isCreatingAlbum || isDeletingAlbum"
-            @click="openShareDialog(singleSelectedPhoto)"
+            @click="openShareDialog(selectedPhoto)"
           />
 
           <UButton
-            v-else-if="isMultiSelection"
+            v-else-if="hasMultiple"
             label="Share photos"
             icon="i-lucide-link"
             color="neutral"
