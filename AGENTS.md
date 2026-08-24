@@ -33,3 +33,11 @@
 
 - Add Vitest only for meaningful logic: state transitions, ordering, transformations, error mapping. Do not test framework behavior, UI libraries, or declarative schemas.
 - Do not add production state, branches, or delays solely to satisfy a test.
+
+## Delivery
+
+- Commit and push frontend changes only in this repository. A push to `main` automatically publishes `cps-client:latest`; it does not deploy it.
+- After pushing, find and watch the publish run with `gh run list --repo htchtc052/cps-client --workflow publish-image.yml --limit 1` and `gh run watch <run-id> --repo htchtc052/cps-client`.
+- Deploy production only when the user explicitly asks. Run `gh workflow run deploy-frontend.yml --repo htchtc052/lab-infra --ref main`, find its ID with `gh run list --repo htchtc052/lab-infra --workflow deploy-frontend.yml --limit 1`, then watch that ID.
+- The deploy workflow recreates only the frontend container and checks the public application URL.
+- Operational procedures live in `lab-infra/DEPLOY.md`.
