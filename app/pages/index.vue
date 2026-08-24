@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { SignInForm } from '~/features/auth/sign-in'
-import { SignUpForm, useRegistrationStatus } from '~/features/auth/sign-up'
+import { SignUpForm } from '~/features/auth/sign-up'
 import { AppLogo } from '~/shared/ui'
 import { AppFooter } from '~/widgets/app-footer'
 
@@ -33,20 +33,12 @@ const albumPreviewImages = [
 
 const authModal = ref<'sign-in' | 'sign-up' | null>(null)
 
-const {
-  data: registrationStatus,
-  status: registrationStatusState,
-  execute: loadRegistrationStatus,
-} = useRegistrationStatus({ immediate: false })
-
 function openSignIn(): void {
   authModal.value = 'sign-in'
 }
 
 function openSignUp(): void {
   authModal.value = 'sign-up'
-
-  if (registrationStatusState.value === 'idle') loadRegistrationStatus()
 }
 
 function closeAuthModal(): void {
@@ -188,31 +180,7 @@ const ctaLinks = [
       @update:open="(value) => { if (!value) closeAuthModal() }"
     >
       <template #body>
-        <div
-          v-if="registrationStatusState === 'idle' || registrationStatusState === 'pending'"
-          class="flex justify-center py-8"
-        >
-          <UIcon
-            name="i-lucide-loader-2"
-            class="size-6 animate-spin text-dimmed"
-          />
-        </div>
-
-        <UAlert
-          v-else-if="registrationStatusState === 'error'"
-          icon="i-lucide-triangle-alert"
-          title="Registration status unavailable"
-          description="Open the registration page and try again."
-        />
-
-        <UAlert
-          v-else-if="!registrationStatus.registrationEnabled"
-          icon="i-lucide-lock"
-          title="Registration is closed"
-          description="New accounts are not accepted at the moment."
-        />
-
-        <SignUpForm v-else />
+        <SignUpForm />
       </template>
 
       <template #footer>
