@@ -3,6 +3,13 @@ import type { Ref } from 'vue'
 export function useStagedPreviews(files: Ref<readonly File[]>) {
   const urls = new Map<File, string>()
 
+  function canPreviewLocally(file: File): boolean {
+    const extension = file.name.split('.').pop()?.toLowerCase()
+
+    return !['image/heic', 'image/heif'].includes(file.type.toLowerCase())
+      && !['heic', 'heif'].includes(extension ?? '')
+  }
+
   function previewUrl(file: File): string {
     const existing = urls.get(file)
 
@@ -34,5 +41,5 @@ export function useStagedPreviews(files: Ref<readonly File[]>) {
     urls.clear()
   })
 
-  return { previewUrl }
+  return { canPreviewLocally, previewUrl }
 }

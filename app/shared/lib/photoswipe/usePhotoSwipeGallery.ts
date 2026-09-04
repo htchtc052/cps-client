@@ -1,21 +1,16 @@
-import type PhotoSwipeLightbox from 'photoswipe/lightbox'
+import PhotoSwipeLightbox from 'photoswipe/lightbox'
 import { onBeforeUnmount, onMounted, type Ref } from 'vue'
 import 'photoswipe/style.css'
 
 export function usePhotoSwipeGallery(gallery: Ref<HTMLElement | null>): void {
   let lightbox: PhotoSwipeLightbox | null = null
-  let mounted = false
 
-  onMounted(async () => {
-    mounted = true
+  onMounted(() => {
+    if (!gallery.value) return
 
-    const { default: Lightbox } = await import('photoswipe/lightbox')
-
-    if (!mounted || !gallery.value) return
-
-    lightbox = new Lightbox({
+    lightbox = new PhotoSwipeLightbox({
       gallery: gallery.value,
-      children: 'a[data-pswp-width]',
+      children: '[data-pswp-src]',
       pswpModule: () => import('photoswipe'),
       loop: false,
       wheelToZoom: true,
@@ -29,7 +24,6 @@ export function usePhotoSwipeGallery(gallery: Ref<HTMLElement | null>): void {
   })
 
   onBeforeUnmount(() => {
-    mounted = false
     lightbox?.destroy()
     lightbox = null
   })

@@ -7,16 +7,16 @@ export function useAlbumSharing() {
   const toast = useToast()
   const requestUrl = useRequestURL()
   const { copy } = useClipboard({ legacy: true })
-  const { createAlbum: createAlbumRequest, deleteAlbum: deleteAlbumRequest } = useAlbumSharingRequest()
-  const createOperation = useApiOperation(createAlbumRequest)
-  const deleteOperation = useApiOperation(deleteAlbumRequest)
+  const { enableSharing, disableSharing } = useAlbumSharingRequest()
+  const enableOperation = useApiOperation(enableSharing)
+  const disableOperation = useApiOperation(disableSharing)
 
   function albumUrl(shareToken: string): string {
     return `${requestUrl.origin}/a/${shareToken}`
   }
 
-  async function createAlbum(ids: number[]): Promise<AccountAlbum | null> {
-    const response = await createOperation.execute(ids)
+  async function share(id: number): Promise<AccountAlbum | null> {
+    const response = await enableOperation.execute(id)
 
     return response.status === ApiResultStatus.Success ? response.data : null
   }
@@ -27,22 +27,22 @@ export function useAlbumSharing() {
     toast.add({ title: 'Copied to clipboard.', color: 'success' })
   }
 
-  async function deleteAlbum(id: number): Promise<boolean> {
-    const response = await deleteOperation.execute(id)
+  async function revoke(id: number): Promise<boolean> {
+    const response = await disableOperation.execute(id)
 
     if (response.status !== ApiResultStatus.Success) return false
 
-    toast.add({ title: 'Album link deleted.', color: 'success' })
+    toast.add({ title: 'Album link revoked.', color: 'success' })
 
     return true
   }
 
   return {
-    createAlbum,
+    share,
     albumUrl,
     copyText,
-    deleteAlbum,
-    isCreating: createOperation.isLoading,
-    isDeleting: deleteOperation.isLoading,
+    revoke,
+    isSharing: enableOperation.isLoading,
+    isRevoking: disableOperation.isLoading,
   }
 }

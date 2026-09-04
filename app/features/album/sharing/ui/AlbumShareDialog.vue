@@ -1,15 +1,16 @@
 <script setup lang="ts">
 const props = defineProps<{
   open: boolean
+  title: string
   photosCount: number
   shareUrl: string | null
-  isDeleting: boolean
+  isRevoking: boolean
 }>()
 
 const emit = defineEmits<{
   'update:open': [boolean]
   'copy': [string]
-  'delete-link': []
+  'revoke': []
 }>()
 
 const photosLabel = computed(() => props.photosCount === 1 ? '1 photo' : `${props.photosCount} photos`)
@@ -18,7 +19,7 @@ const photosLabel = computed(() => props.photosCount === 1 ? '1 photo' : `${prop
 <template>
   <UModal
     :open="open"
-    title="Shared album"
+    :title="title"
     :description="photosLabel"
     @update:open="emit('update:open', $event)"
   >
@@ -40,13 +41,23 @@ const photosLabel = computed(() => props.photosCount === 1 ? '1 photo' : `${prop
       />
 
       <UButton
-        label="Delete link"
+        label="Open"
+        icon="i-lucide-external-link"
+        color="neutral"
+        variant="subtle"
+        :to="shareUrl ?? undefined"
+        target="_blank"
+        :disabled="!shareUrl"
+      />
+
+      <UButton
+        label="Revoke link"
         icon="i-lucide-link-2-off"
         color="error"
         variant="subtle"
-        :loading="isDeleting"
-        :disabled="isDeleting"
-        @click="emit('delete-link')"
+        :loading="isRevoking"
+        :disabled="isRevoking"
+        @click="emit('revoke')"
       />
     </template>
   </UModal>

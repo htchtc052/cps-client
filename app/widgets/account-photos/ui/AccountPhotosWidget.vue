@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import type { AccountAlbum } from '~/entities/album'
 import type { AccountPhoto } from '~/entities/photo'
 import { PhotoGrid } from '~/entities/photo'
-import { AlbumShareDialog, useAlbumSharing } from '~/features/album/sharing'
+import { useAddToAlbum } from '~/features/album/add-photos'
 import { SelectablePhotoCard, usePhotoSelection } from '~/features/photo/photo-selection'
 import { PhotoDetailsDialog, usePhotoDetails } from '~/features/photo/details'
 import { PhotoShareDialog, usePhotoSharing } from '~/features/photo/sharing'
 import { useMoveToTrash } from '~/features/photo/trash'
 import { usePhotoSwipeGallery } from '~/shared/lib/photoswipe'
 import { PhotoLibraryNavigation } from '~/widgets/photo-library-navigation'
-import type { PhotoSort } from '../api/useAccountPhotosRequest'
+import type { PhotoSharing, PhotoSort } from '../api/useAccountPhotosRequest'
 import { useAccountPhotos, type PhotoOrientationFilter } from '../model/useAccountPhotos'
 
 const orientationItems: { label: string, value: PhotoOrientationFilter }[] = [
@@ -25,50 +24,55 @@ const sortItems: { label: string, value: PhotoSort }[] = [
   { label: 'Name', value: 'name' },
 ]
 
-const { photos, error, orientation, sort, isRefreshing, refresh } = await useAccountPhotos()
+const sharingOptions: { label: string, value: PhotoSharing, icon?: string }[] = [
+  { label: 'All', value: 'all' },
+  { label: 'Shared', value: 'shared', icon: 'i-lucide-link' },
+  { label: 'Private', value: 'private', icon: 'i-lucide-lock' },
+]
+
+const orientationLabels: Record<PhotoOrientationFilter, string> = {
+  all: 'Orientation',
+  landscape: 'Landscape',
+  portrait: 'Portrait',
+  square: 'Square',
+}
+
+const sortLabels: Record<PhotoSort, string> = {
+  newest: 'Newest',
+  oldest: 'Oldest',
+  name: 'Name',
+}
+
+const { photos, error, orientation, sort, sharing, isRefreshing, refresh } = await useAccountPhotos()
 
 const galleryElement = ref<HTMLElement | null>(null)
 
 usePhotoSwipeGallery(galleryElement)
 
-const { count, ids, isSelectionMode, selectedPhoto, hasMultiple, isSelected, toggle, clear } = usePhotoSelection(photos)
+const { count, ids, isSelectionMode, selectedPhoto, isSelected, toggle, clear } = usePhotoSelection(photos)
 const { moveToTrash, isMoving } = useMoveToTrash(photos, clear)
-const { share, shareUrls, copyText, disableSharing, isSharing, isDisablingSharing } = usePhotoSharing(photos)
+const { share, shareUrls, copyText, disableSharing, isSharing, isDisablingSharing } = usePhotoSharing(photos, {
+  onDisabled: (photoId) => {
+    if (sharing.value === 'shared') {
+      photos.value = photos.value.filter(photo => photo.id !== photoId)
+    }
+    else {
+      photos.value = photos.value.map(photo =>
+        photo.id === photoId ? { ...photo, shareToken: null } : photo,
+      )
+    }
+  },
+})
 
-const {
-  createAlbum,
-  albumUrl,
-  copyText: copyAlbumText,
-  deleteAlbum,
-  isCreating: isCreatingAlbum,
-  isDeleting: isDeletingAlbum,
-} = useAlbumSharing()
+const { isActive: isAddingToAlbum, targetAlbum, addSelectedPhotos, isAdding, exitAddMode } = useAddToAlbum()
 
-const albumDialogAlbum = ref<AccountAlbum | null>(null)
-const isAlbumDialogOpen = ref(false)
+async function addSelectionToAlbum(): Promise<void> {
+  await addSelectedPhotos(ids.value)
+}
 
-async function shareSelectedPhotos(): Promise<void> {
-  const created = await createAlbum(ids.value)
-
-  if (!created) return
-
+function cancelAddToAlbum(): void {
   clear()
-  albumDialogAlbum.value = created
-  isAlbumDialogOpen.value = true
-}
-
-async function handleAlbumCopy(text: string): Promise<void> {
-  await copyAlbumText(text)
-
-  isAlbumDialogOpen.value = false
-}
-
-async function handleAlbumDeleteLink(): Promise<void> {
-  if (!albumDialogAlbum.value) return
-
-  const succeeded = await deleteAlbum(albumDialogAlbum.value.id)
-
-  if (succeeded) isAlbumDialogOpen.value = false
+  exitAddMode()
 }
 
 const { save: savePhotoDetails, isSaving: isSavingDetails } = usePhotoDetails(photos)
@@ -141,17 +145,71 @@ function onSortChange(value: PhotoSort) {
   refresh()
 }
 
+function onSharingChange(value: PhotoSharing) {
+  sharing.value = value
+  clear()
+  refresh()
+}
+
 function showAllPhotos() {
   orientation.value = 'all'
   clear()
   refresh()
 }
+
+const orientationMenuItems = computed(() => orientationItems.map(item => ({
+  label: item.label,
+  value: item.value,
+  onSelect: () => onOrientationChange(item.value),
+})))
+
+const sortMenuItems = computed(() => sortItems.map(item => ({
+  label: item.label,
+  value: item.value,
+  onSelect: () => onSortChange(item.value),
+})))
 </script>
 
 <template>
   <div>
+    <UAlert
+      v-if="isAddingToAlbum && targetAlbum"
+      icon="i-lucide-image-plus"
+      color="neutral"
+      variant="subtle"
+      :title="`Adding photos to “${targetAlbum.title}”`"
+      description="Select photos below, then add them to the album."
+      class="mb-3"
+      :actions="[{ label: 'Cancel', color: 'neutral', variant: 'outline', onClick: cancelAddToAlbum }]"
+    />
+
     <div class="z-10 flex flex-wrap items-center justify-between gap-3 bg-muted py-4 sm:sticky sm:top-(--ui-header-height)">
-      <template v-if="isSelectionMode">
+      <template v-if="isSelectionMode && isAddingToAlbum">
+        <span class="text-sm font-medium">{{ count }} selected</span>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <UButton
+            label="Add to album"
+            icon="i-lucide-image-plus"
+            color="neutral"
+            variant="ghost"
+            size="sm"
+            :loading="isAdding"
+            :disabled="isAdding"
+            @click="addSelectionToAlbum"
+          />
+
+          <UButton
+            label="Cancel"
+            color="neutral"
+            variant="outline"
+            size="sm"
+            @click="cancelAddToAlbum"
+          />
+        </div>
+      </template>
+
+      <template v-else-if="isSelectionMode">
         <span class="text-sm font-medium">{{ count }} selected</span>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -162,20 +220,8 @@ function showAllPhotos() {
             color="neutral"
             variant="ghost"
             size="sm"
-            :disabled="isSharing || isDisablingSharing || isMoving || isCreatingAlbum || isDeletingAlbum"
+            :disabled="isSharing || isDisablingSharing || isMoving"
             @click="openShareDialog(selectedPhoto)"
-          />
-
-          <UButton
-            v-else-if="hasMultiple"
-            label="Share photos"
-            icon="i-lucide-link"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :loading="isCreatingAlbum"
-            :disabled="isSharing || isDisablingSharing || isMoving || isCreatingAlbum || isDeletingAlbum"
-            @click="shareSelectedPhotos"
           />
 
           <UButton
@@ -184,7 +230,7 @@ function showAllPhotos() {
             color="error"
             size="sm"
             :loading="isMoving"
-            :disabled="isMoving || isCreatingAlbum || isDeletingAlbum"
+            :disabled="isMoving"
             @click="moveToTrash(ids)"
           />
 
@@ -206,22 +252,72 @@ function showAllPhotos() {
             <span class="text-sm text-muted">{{ photos.length }} photos</span>
           </div>
 
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <USelect
-              :items="orientationItems"
-              :model-value="orientation"
-              :disabled="isRefreshing"
-              class="w-full"
-              @update:model-value="onOrientationChange"
-            />
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <UFieldGroup class="w-full sm:w-auto">
+              <UButton
+                v-for="option in sharingOptions"
+                :key="option.value"
+                type="button"
+                :label="option.label"
+                :icon="option.icon"
+                :color="sharing === option.value ? 'primary' : 'neutral'"
+                :variant="sharing === option.value ? 'soft' : 'outline'"
+                :aria-pressed="sharing === option.value"
+                :disabled="isRefreshing"
+                class="flex-1 sm:flex-initial"
+                @click="onSharingChange(option.value)"
+              />
+            </UFieldGroup>
 
-            <USelect
-              :items="sortItems"
-              :model-value="sort"
-              :disabled="isRefreshing"
-              class="w-full"
-              @update:model-value="onSortChange"
-            />
+            <div class="flex flex-1 items-center gap-2 sm:flex-initial">
+              <UDropdownMenu
+                :items="orientationMenuItems"
+                :disabled="isRefreshing"
+                class="flex-1 sm:flex-initial"
+              >
+                <UButton
+                  :label="orientationLabels[orientation]"
+                  icon="i-lucide-ratio"
+                  trailing-icon="i-lucide-chevron-down"
+                  color="neutral"
+                  :variant="orientation === 'all' ? 'outline' : 'soft'"
+                  :disabled="isRefreshing"
+                  block
+                />
+
+                <template #item-trailing="{ item }">
+                  <UIcon
+                    v-if="item.value === orientation"
+                    name="i-lucide-check"
+                    class="size-4"
+                  />
+                </template>
+              </UDropdownMenu>
+
+              <UDropdownMenu
+                :items="sortMenuItems"
+                :disabled="isRefreshing"
+                class="flex-1 sm:flex-initial"
+              >
+                <UButton
+                  :label="sortLabels[sort]"
+                  icon="i-lucide-arrow-up-down"
+                  trailing-icon="i-lucide-chevron-down"
+                  color="neutral"
+                  variant="ghost"
+                  :disabled="isRefreshing"
+                  block
+                />
+
+                <template #item-trailing="{ item }">
+                  <UIcon
+                    v-if="item.value === sort"
+                    name="i-lucide-check"
+                    class="size-4"
+                  />
+                </template>
+              </UDropdownMenu>
+            </div>
           </div>
         </div>
       </template>
@@ -236,10 +332,24 @@ function showAllPhotos() {
       />
 
       <UEmpty
-        v-else-if="photos.length === 0 && orientation === 'all'"
+        v-else-if="photos.length === 0 && orientation === 'all' && sharing === 'all'"
         icon="i-lucide-image"
         title="No photos yet"
         description="Upload your first photos to start your collection."
+      />
+
+      <UEmpty
+        v-else-if="photos.length === 0 && sharing === 'shared'"
+        icon="i-lucide-link"
+        title="No shared photos"
+        description="Share a photo from its action menu and it will show up here."
+      />
+
+      <UEmpty
+        v-else-if="photos.length === 0 && sharing === 'private'"
+        icon="i-lucide-lock"
+        title="No private photos"
+        description="Photos without a share link show up here."
       />
 
       <UEmpty
@@ -282,15 +392,6 @@ function showAllPhotos() {
       :is-deleting="isDisablingSharing"
       @copy="handleCopy"
       @delete-link="handleDeleteLink"
-    />
-
-    <AlbumShareDialog
-      v-model:open="isAlbumDialogOpen"
-      :photos-count="albumDialogAlbum?.photosCount ?? 0"
-      :share-url="albumDialogAlbum ? albumUrl(albumDialogAlbum.shareToken) : null"
-      :is-deleting="isDeletingAlbum"
-      @copy="handleAlbumCopy"
-      @delete-link="handleAlbumDeleteLink"
     />
   </div>
 </template>

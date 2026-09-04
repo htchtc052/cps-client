@@ -6,8 +6,9 @@ defineProps<{ photo: Photo }>()
 
 <template>
   <article class="min-w-0">
-    <a
-      :href="photo.viewerUrl"
+    <button
+      type="button"
+      :data-pswp-src="photo.viewerUrl"
       :data-pswp-width="photo.viewerWidth"
       :data-pswp-height="photo.viewerHeight"
       data-cropped="true"
@@ -27,7 +28,7 @@ defineProps<{ photo: Photo }>()
         name="i-lucide-image"
         class="size-8 text-dimmed"
       />
-    </a>
+    </button>
 
     <p class="mt-1 truncate text-sm text-toned">
       {{ photo.name }}

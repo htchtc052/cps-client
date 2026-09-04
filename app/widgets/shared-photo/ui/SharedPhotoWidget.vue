@@ -62,8 +62,9 @@ useHead({
         ref="galleryElement"
         class="mt-8 flex justify-center"
       >
-        <a
-          :href="photo.viewerUrl"
+        <button
+          type="button"
+          :data-pswp-src="photo.viewerUrl"
           :data-pswp-width="photo.viewerWidth"
           :data-pswp-height="photo.viewerHeight"
         >
@@ -72,7 +73,7 @@ useHead({
             :alt="photo.name"
             class="max-h-[80vh] max-w-full object-contain"
           >
-        </a>
+        </button>
       </div>
     </template>
   </div>

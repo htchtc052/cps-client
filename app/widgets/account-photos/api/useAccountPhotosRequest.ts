@@ -2,10 +2,12 @@ import type { AccountPhoto } from '~/entities/photo'
 
 export type PhotoOrientation = 'landscape' | 'portrait' | 'square'
 export type PhotoSort = 'newest' | 'oldest' | 'name'
+export type PhotoSharing = 'all' | 'shared' | 'private'
 
 export type AccountPhotosQuery = {
   orientation?: PhotoOrientation
   sort: PhotoSort
+  sharing: PhotoSharing
 }
 
 export function useAccountPhotosRequest() {
@@ -16,6 +18,7 @@ export function useAccountPhotosRequest() {
       query: {
         orientation: query.orientation,
         sort: query.sort,
+        sharing: query.sharing,
       },
     })
   }

@@ -23,7 +23,7 @@ const photosCountLabel = computed(() => {
 const requestUrl = useRequestURL()
 
 useSeoMeta({
-  title: 'Shared album',
+  title: () => album.value?.title ?? 'Shared album',
   description: () => `View and download ${album.value?.photosCount ?? 0} shared photo(s).`,
 })
 
@@ -49,7 +49,7 @@ useHead({
 
     <template v-else-if="album">
       <UPageHeader
-        title="Shared album"
+        :title="album.title"
         :description="photosCountLabel"
       />
 

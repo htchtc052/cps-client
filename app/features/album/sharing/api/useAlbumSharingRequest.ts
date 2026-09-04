@@ -3,24 +3,16 @@ import type { AccountAlbum } from '~/entities/album'
 export function useAlbumSharingRequest() {
   const client = useSanctumClient()
 
-  function createAlbum(ids: number[]): Promise<AccountAlbum> {
-    return client<AccountAlbum>('/api/albums', {
-      method: 'POST',
-      body: { ids },
-    })
+  function enableSharing(id: number): Promise<AccountAlbum> {
+    return client<AccountAlbum>(`/api/albums/${id}/share`, { method: 'POST' })
   }
 
-  function getAlbums(): Promise<AccountAlbum[]> {
-    return client<AccountAlbum[]>('/api/albums')
-  }
-
-  function deleteAlbum(id: number): Promise<void> {
-    return client(`/api/albums/${id}`, { method: 'DELETE' })
+  function disableSharing(id: number): Promise<void> {
+    return client(`/api/albums/${id}/share`, { method: 'DELETE' })
   }
 
   return {
-    createAlbum,
-    getAlbums,
-    deleteAlbum,
+    enableSharing,
+    disableSharing,
   }
 }

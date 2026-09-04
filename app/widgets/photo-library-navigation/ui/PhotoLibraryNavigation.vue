@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const items = [
   { label: 'Photos', to: '/owner' },
-  { label: 'Shared', to: '/links' },
+  { label: 'Albums', to: '/albums' },
   { label: 'Trash', to: '/trash' },
 ]
 </script>

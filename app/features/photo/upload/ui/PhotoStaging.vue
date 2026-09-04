@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { MAX_STAGED_PHOTOS, photoStagingSchema, type PhotoStagingDto } from '../contract/photo-staging.contract'
+import { partitionStagedPhotos, type PhotoStagingRejection } from '../model/partitionStagedPhotos'
 import { usePhotoUpload, type PhotoUploadFailureView } from '../model/usePhotoUpload'
 import { useStagedPreviews } from '../model/useStagedPreviews'
-
-const toast = useToast()
 
 const state = reactive<PhotoStagingDto>({
   photos: [],
 })
 
 const failures = ref<PhotoUploadFailureView[]>([])
+const stagingRejections = ref<PhotoStagingRejection[]>([])
 
-const { previewUrl } = useStagedPreviews(toRef(state, 'photos'))
+const { canPreviewLocally, previewUrl } = useStagedPreviews(toRef(state, 'photos'))
 
 const { uploadPhotos, stagedStates, phase, isBusy, completed, total, previewPending, previewTotal } = usePhotoUpload()
 
@@ -28,20 +28,10 @@ function onStagingChange(photos: File[] | null | undefined) {
 
   failures.value = []
 
-  const nextPhotos = photos ?? []
+  const partitioned = partitionStagedPhotos(photos ?? [])
 
-  if (nextPhotos.length > MAX_STAGED_PHOTOS) {
-    state.photos = nextPhotos.slice(0, MAX_STAGED_PHOTOS)
-
-    toast.add({
-      title: `You can upload up to ${MAX_STAGED_PHOTOS} photos at a time. The remaining files weren’t added.`,
-      color: 'warning',
-    })
-
-    return
-  }
-
-  state.photos = nextPhotos
+  state.photos = partitioned.photos
+  stagingRejections.value = partitioned.rejections
 }
 
 async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
@@ -65,12 +55,12 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
     <UFormField
       name="photos"
       label="Photos"
-      :description="`JPEG, PNG or WebP. 15MB max. Up to ${MAX_STAGED_PHOTOS} photos per upload.`"
+      :description="`JPEG, PNG, WebP, HEIC or HEIF. 15MB max. Up to ${MAX_STAGED_PHOTOS} photos per upload.`"
     >
       <UFileUpload
         :model-value="state.photos"
         multiple
-        accept=".jpg,.jpeg,.png,.webp"
+        accept=".jpg,.jpeg,.png,.webp,.heic,.heif"
         icon="i-lucide-image"
         label="Drop your photos here"
         description="Add photos in as many goes as you like, then upload them together."
@@ -99,10 +89,24 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
             class="relative aspect-square overflow-hidden rounded-md ring ring-default"
           >
             <img
+              v-if="canPreviewLocally(photo)"
               :src="previewUrl(photo)"
               :alt="photo.name"
               class="h-full w-full object-cover"
             >
+
+            <div
+              v-else
+              class="flex h-full flex-col items-center justify-center gap-2 bg-muted p-3 text-center"
+            >
+              <UIcon name="i-lucide-image" class="size-8 text-muted" />
+              <p class="max-w-full truncate text-sm font-medium">
+                {{ photo.name }}
+              </p>
+              <p class="text-xs text-muted">
+                Preview after upload
+              </p>
+            </div>
 
             <UButton
               v-if="!isBusy"
@@ -178,6 +182,25 @@ async function onSubmit(e: FormSubmitEvent<PhotoStagingDto>) {
         </template>
       </UFileUpload>
     </UFormField>
+
+    <UAlert
+      v-if="stagingRejections.length"
+      title="Some files weren’t added"
+      color="warning"
+      variant="subtle"
+      icon="i-lucide-triangle-alert"
+    >
+      <template #description>
+        <ul>
+          <li
+            v-for="rejection in stagingRejections"
+            :key="`${rejection.file.name}-${rejection.file.lastModified}-${rejection.file.size}`"
+          >
+            {{ rejection.file.name }} — {{ rejection.message }}
+          </li>
+        </ul>
+      </template>
+    </UAlert>
 
     <UAlert
       v-if="failures.length"
