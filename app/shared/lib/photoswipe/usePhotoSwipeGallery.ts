@@ -10,7 +10,7 @@ export function usePhotoSwipeGallery(gallery: Ref<HTMLElement | null>): void {
 
     lightbox = new PhotoSwipeLightbox({
       gallery: gallery.value,
-      children: '[data-pswp-src]',
+      children: 'a[data-pswp-src]',
       pswpModule: () => import('photoswipe'),
       loop: false,
       wheelToZoom: true,
